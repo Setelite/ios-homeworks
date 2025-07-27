@@ -29,8 +29,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = [feedNav, profileNav]
+        tabBarController.tabBar.barTintColor = .systemGray6
 
-        
         self.window = window
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()

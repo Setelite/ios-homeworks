@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7D4BF5772E2FEF6C006483C4 /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D4BF5762E2FEF6C006483C4 /* ProfileHeaderView.swift */; };
+		7D4BF5792E2FF0E9006483C4 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D4BF5782E2FF0E9006483C4 /* ProfileViewController.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		7D1E38712E280D02003A222D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +32,8 @@
 		7D1E385A2E280D01003A222D /* Navigation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Navigation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D1E38702E280D02003A222D /* NavigationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NavigationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D1E387A2E280D02003A222D /* NavigationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NavigationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7D4BF5762E2FEF6C006483C4 /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
+		7D4BF5782E2FF0E9006483C4 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -34,6 +41,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				ProfileViewController.swift,
 			);
 			target = 7D1E38592E280D01003A222D /* Navigation */;
 		};
@@ -78,6 +86,7 @@
 		7D1E38512E280D01003A222D = {
 			isa = PBXGroup;
 			children = (
+				7D4BF5752E2FED90006483C4 /* Profile */,
 				7D1E385C2E280D01003A222D /* Navigation */,
 				7D1E385B2E280D01003A222D /* Products */,
 			);
@@ -91,6 +100,15 @@
 				7D1E387A2E280D02003A222D /* NavigationUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		7D4BF5752E2FED90006483C4 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				7D4BF5762E2FEF6C006483C4 /* ProfileHeaderView.swift */,
+				7D4BF5782E2FF0E9006483C4 /* ProfileViewController.swift */,
+			);
+			path = Profile;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -231,6 +249,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D4BF5792E2FF0E9006483C4 /* ProfileViewController.swift in Sources */,
+				7D4BF5772E2FEF6C006483C4 /* ProfileHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

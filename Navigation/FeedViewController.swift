@@ -12,7 +12,7 @@ class FeedViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
 
         let button = UIButton(type: .system)
         button.setTitle("Open Post", for: .normal)

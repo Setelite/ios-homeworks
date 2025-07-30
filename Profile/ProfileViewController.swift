@@ -10,46 +10,56 @@ import UIKit
 class ProfileViewController: UIViewController {
     
     private let headerView = ProfileHeaderView()
+    private let bottomButton: UIButton = {
+        
+        let button = UIButton(type: .system)
+        button.setTitle("Logout", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = 12
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGray6
-        view.addSubview(headerView)
+        setupLayout()
+        bottomButton.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        print("🧭 NavigationController есть?", navigationController != nil)
-        
-        
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .systemGray6 // светло-серый фон
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.black] // цвет заголовка (опционально)
+    @objc private func bottomButtonTapped() {
+        print("Кнопка нажата")
+    }
 
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+    
+    private func setupLayout() {
+        view.addSubview(headerView)
+        view.addSubview(bottomButton)
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            headerView.heightAnchor.constraint(equalToConstant: 220),
+
+            bottomButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
-    
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        headerView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: 780)
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
+    
+
+
+    
+    
+    
+    
+    
+
 
 
 

@@ -121,7 +121,6 @@ final class LogInViewController: UIViewController {
             loginButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
             ])
         
-        //contentView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor).isActive = true
 
         }
     
@@ -150,7 +149,6 @@ final class LogInViewController: UIViewController {
     
     @objc private func loginTapped() {
         print("Log In tapped")
-        // Переход к ProfileViewController, если он у тебя уже есть:
         let profileVC = ProfileViewController()
         navigationController?.pushViewController(profileVC, animated: true)
     }

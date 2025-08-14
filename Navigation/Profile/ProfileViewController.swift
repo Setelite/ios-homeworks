@@ -7,60 +7,74 @@
 
 import UIKit
 
-class ProfileViewController: UIViewController {
-    
-    private let headerView = ProfileHeaderView()
-    private let bottomButton: UIButton = {
-        
-        let button = UIButton(type: .system)
-        button.setTitle("Logout", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = .systemBlue
-        button.layer.cornerRadius = 12
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
+
+final class ProfileViewController: UIViewController {
+
+    private let tableView = UITableView(frame: .zero, style: .grouped)
+
+    private let posts: [Post] = [
+        Post(author: "Wowgorno", description: "На работе тоже есть чем заняться!", image: "my_photo", likes: 120, views: 300),
+        Post(author: "Dady_hulk", description: "Банка", image: "hulk", likes: 95, views: 180),
+        Post(author: "Wowgorno", description: "Philipp Plein подарил)))!", image: "pp", likes: 450, views: 900),
+        Post(author: "Wowgorno", description: "Как обычно там , где нет никого)))", image: "skala", likes: 270, views: 500)
+    ]
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupTableView()
+    }
+
+    private func setupTableView() {
         view.backgroundColor = .systemGray6
-        setupLayout()
-        bottomButton.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
-    }
-    
-    @objc private func bottomButtonTapped() {
-        print("Кнопка нажата")
-    }
 
-    
-    private func setupLayout() {
-        view.addSubview(headerView)
-        view.addSubview(bottomButton)
-        headerView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = .clear
 
+        tableView.register(PostTableViewCell.self, forCellReuseIdentifier: "PostCell")
+
+        // Шапка
+        let headerView = ProfileHeaderView()
+        headerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 220)
+        tableView.tableHeaderView = headerView
+
+        view.addSubview(tableView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 220),
-
-            bottomButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            bottomButton.heightAnchor.constraint(equalToConstant: 50)
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            tableView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 }
-    
 
+extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 
-    
-    
-    
-    
-    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return posts.count
+    }
 
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostTableViewCell else {
+            return UITableViewCell()
+        }
+        cell.configure(with: posts[indexPath.row])
+        return cell
+    }
 
+    // Отступ между хедером и первым постом
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return section == 0 ? 16 : 0
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }
+}
 
 
 

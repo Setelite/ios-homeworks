@@ -29,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = [feedNav, profileNav]
-        tabBarController.tabBar.barTintColor = .systemGray2
+        tabBarController.tabBar.barTintColor = .systemGray6
         tabBarController.tabBar.backgroundColor = .systemGray6
         tabBarController.tabBar.layer.borderColor = UIColor.systemGray2.cgColor
         tabBarController.tabBar.layer.borderWidth = 0.5

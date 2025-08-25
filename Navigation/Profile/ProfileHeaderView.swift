@@ -36,12 +36,12 @@ class ProfileHeaderView: UIView {
         
         // Аватар
         avatarImageView.image = UIImage(named: "avatar")
-        avatarImageView.layer.cornerRadius = 50
         avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.clipsToBounds = true
-        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+        avatarImageView.layer.cornerRadius = 50        // половина от width/height
         avatarImageView.layer.borderWidth = 3
         avatarImageView.layer.borderColor = UIColor.white.cgColor
+        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         
         // Имя
         nameLabel.text = "Максим Горноставев"
@@ -73,7 +73,7 @@ class ProfileHeaderView: UIView {
         statusTextField.addTarget(self, action: #selector(statusTextChanged(_:)), for: .editingChanged)
         statusTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 40))
         statusTextField.leftViewMode = .always
-
+        
         // Кнопка
         setStatusButton.setTitle("Показать статус", for: .normal)
         setStatusButton.backgroundColor = .systemBlue
@@ -99,30 +99,46 @@ class ProfileHeaderView: UIView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            avatarImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
+            // Аватар 100x100
+            avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: 16),
             avatarImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             avatarImageView.widthAnchor.constraint(equalToConstant: 100),
             avatarImageView.heightAnchor.constraint(equalToConstant: 100),
-            
-            nameLabel.topAnchor.constraint(equalTo: avatarImageView.topAnchor, constant: 16),
-            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 27),
+
+            // Имя справа от аватара
+            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 27),
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 16),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            statusLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 34),
+
+            // Текущий статус под именем (все ещё справа от аватара)
+            statusLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 27),
             statusLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             statusLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            
-            statusTextField.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 4),
-            statusTextField.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor, constant: 4),
+
+            // Поле ввода под подписью, но В ПРЕДЕЛАХ высоты аватара
+            statusTextField.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 8),
+            statusTextField.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             statusTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             statusTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            setStatusButton.topAnchor.constraint(equalTo: statusTextField.bottomAnchor, constant: 16),
+            statusTextField.bottomAnchor.constraint(lessThanOrEqualTo: avatarImageView.bottomAnchor, constant: 60),
+
+            // Кнопка уже ниже аватара
+            setStatusButton.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 40),
             setStatusButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             setStatusButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             setStatusButton.heightAnchor.constraint(equalToConstant: 50),
+            setStatusButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16)
+      
+
         ])
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
+    }
+    
+    
     
     // Обработка текста из TextField
     @objc private func statusTextChanged(_ textField: UITextField) {
@@ -137,10 +153,10 @@ class ProfileHeaderView: UIView {
     
     
     
-    
-    
-    
-    
-    
-    
 }
+    
+    
+    
+    
+    
+

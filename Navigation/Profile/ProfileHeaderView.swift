@@ -5,6 +5,7 @@
 //  Created by MAXIM GORNOSTAEV on 22.07.2025.
 //
 
+import StorageService
 import UIKit
 
 class ProfileHeaderView: UIView {

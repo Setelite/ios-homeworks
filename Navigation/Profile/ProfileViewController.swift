@@ -5,6 +5,7 @@
 //  Created by MAXIM GORNOSTAEV on 22.07.2025.
 //
 
+import StorageService
 import UIKit
 
 final class ProfileViewController: UIViewController {
@@ -22,7 +23,12 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+#if DEBUG
+tableView.backgroundColor = .systemGreen
+#else
+tableView.backgroundColor = .systemBlue
+#endif
+
         setupTableView()
     }
     

@@ -5,159 +5,154 @@
 //  Created by MAXIM GORNOSTAEV on 22.07.2025.
 //
 
-import StorageService
 import UIKit
+import SnapKit
 
-class ProfileHeaderView: UIView {
+final class ProfileHeaderView: UIView {
     
-    // UI элементы
-    private let avatarImageView = UIImageView()
-    private let nameLabel = UILabel()
-    private let statusLabel = UILabel()
-    private let statusTextField = UITextField()
-    private let setStatusButton = UIButton(type: .system)
+    // MARK: - UI
+    private let avatarImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "avatar")
+        imageView.contentMode = .scaleAspectFill   // ✅ чтобы не сплющивалась
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 50
+        imageView.layer.borderWidth = 2
+        imageView.layer.borderColor = UIColor.white.cgColor
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
     
-    // Приватное хранилище текста
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Максим Горностаев"
+        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.textColor = .black
+        return label
+    }()
+    
+    private let statusLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Текущий статус"
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .gray
+        return label
+    }()
+    
+    private let statusTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Введите новый статус"
+        textField.font = .systemFont(ofSize: 14)
+        textField.textColor = .black
+        textField.backgroundColor = .white
+        textField.layer.cornerRadius = 12
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.black.cgColor
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 40))
+        textField.leftViewMode = .always
+        return textField
+    }()
+    
+    private let setStatusButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Показать статус", for: .normal)
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 12
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .regular)
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowRadius = 4
+        button.layer.shadowOpacity = 0.7
+        button.layer.shadowOffset = CGSize(width: 4, height: 4)
+        return button
+    }()
+    
+    // MARK: - Properties
     private var statusText: String = ""
     
+    // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .systemGray6
+        backgroundColor = .systemGray6
         setupViews()
         setupConstraints()
+        setupActions()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupViews()
+        setupConstraints()
+        setupActions()
     }
     
+    // MARK: - Setup
     private func setupViews() {
-        backgroundColor = .systemGray6
-        
-        // Аватар
-        avatarImageView.image = UIImage(named: "avatar")
-        avatarImageView.contentMode = .scaleAspectFill
-        avatarImageView.clipsToBounds = true
-        avatarImageView.layer.cornerRadius = 50        // половина от width/height
-        avatarImageView.layer.borderWidth = 3
-        avatarImageView.layer.borderColor = UIColor.white.cgColor
-        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Имя
-        nameLabel.text = "Максим Горноставев"
-        nameLabel.font = .systemFont(ofSize: 18, weight: .bold)
-        nameLabel.textColor = .black
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        
-        // Статус
-        statusLabel.text = "Текущий статус"
-        statusLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        statusLabel.textColor = .gray
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Текстовое поле
-        statusTextField.placeholder = "Введите новый статус"
-        statusTextField.font = .systemFont(ofSize: 14)
-        statusTextField.textColor = .black
-        statusTextField.borderStyle = .none
-        statusTextField.layer.masksToBounds = true
-        statusTextField.layer.cornerRadius = 12
-        statusTextField.layer.borderWidth = 1
-        statusTextField.layer.borderColor = UIColor.black.cgColor
-        statusTextField.backgroundColor = .white
-        statusTextField.clearButtonMode = .whileEditing
-        statusTextField.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Добавляем обработчик изменения текста
-        statusTextField.addTarget(self, action: #selector(statusTextChanged(_:)), for: .editingChanged)
-        statusTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 40))
-        statusTextField.leftViewMode = .always
-        
-        // Кнопка
-        setStatusButton.setTitle("Показать статус", for: .normal)
-        setStatusButton.backgroundColor = .systemBlue
-        setStatusButton.setTitleColor(.white, for: .normal)
-        setStatusButton.layer.cornerRadius = 12
-        setStatusButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .regular)
-        setStatusButton.translatesAutoresizingMaskIntoConstraints = false
-        setStatusButton.layer.shadowColor = UIColor.black.cgColor
-        setStatusButton.layer.shadowRadius = 4
-        setStatusButton.layer.shadowOpacity = 0.7
-        setStatusButton.layer.shadowOffset = CGSize(width: 4, height: 4)
-        setStatusButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
-        
-        // Добавляем элементы
         addSubview(avatarImageView)
         addSubview(nameLabel)
         addSubview(statusLabel)
         addSubview(statusTextField)
         addSubview(setStatusButton)
-        
-        setupConstraints()
     }
     
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            // Аватар 100x100
-            avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: 16),
-            avatarImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 100),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 100),
+        avatarImageView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.width.height.equalTo(100)
+        }
 
-            // Имя справа от аватара
-            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 27),
-            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 16),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+        nameLabel.snp.makeConstraints { make in
+            make.top.equalTo(avatarImageView.snp.top).offset(10)
+            make.leading.equalTo(avatarImageView.snp.trailing).offset(16)
+            make.trailing.lessThanOrEqualToSuperview().inset(16)
+        }
 
-            // Текущий статус под именем (все ещё справа от аватара)
-            statusLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 27),
-            statusLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            statusLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+        statusLabel.snp.makeConstraints { make in
+            make.top.equalTo(nameLabel.snp.bottom).offset(8)
+            make.leading.equalTo(nameLabel)
+            make.trailing.lessThanOrEqualToSuperview().inset(16)
+        }
 
-            // Поле ввода под подписью, но В ПРЕДЕЛАХ высоты аватара
-            statusTextField.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 8),
-            statusTextField.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            statusTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            statusTextField.heightAnchor.constraint(equalToConstant: 40),
-            statusTextField.bottomAnchor.constraint(lessThanOrEqualTo: avatarImageView.bottomAnchor, constant: 60),
+        statusTextField.snp.makeConstraints { make in
+            make.top.equalTo(avatarImageView.snp.bottom).offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(36)
+        }
 
-            // Кнопка уже ниже аватара
-            setStatusButton.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 40),
-            setStatusButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            setStatusButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            setStatusButton.heightAnchor.constraint(equalToConstant: 50),
-            setStatusButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16)
-      
+        setStatusButton.snp.makeConstraints { make in
+            make.top.equalTo(statusTextField.snp.bottom).offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(44)
+            make.bottom.equalToSuperview().inset(16)
+        }
+    }
 
-        ])
+
+    
+    private func setupActions() {
+        statusTextField.addTarget(self, action: #selector(statusTextChanged(_:)), for: .editingChanged)
+        setStatusButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.height / 2
+        avatarImageView.clipsToBounds = true
     }
+
+
     
-    
-    
-    // Обработка текста из TextField
+    // MARK: - Actions
     @objc private func statusTextChanged(_ textField: UITextField) {
         statusText = textField.text ?? ""
     }
     
-    // Обработка нажатия кнопки
     @objc private func buttonPressed() {
         statusLabel.text = statusText
         print("Установлен статус: \(statusText)")
     }
-    
-    
-    
 }
-    
-    
-    
-    
-    
-

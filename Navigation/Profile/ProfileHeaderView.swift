@@ -13,20 +13,16 @@ final class ProfileHeaderView: UIView {
     // MARK: - UI
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "avatar")
-        imageView.contentMode = .scaleAspectFill   // ✅ чтобы не сплющивалась
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 50
         imageView.layer.borderWidth = 2
         imageView.layer.borderColor = UIColor.white.cgColor
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Максим Горностаев"
         label.font = .systemFont(ofSize: 18, weight: .bold)
         label.textColor = .black
         return label
@@ -34,7 +30,6 @@ final class ProfileHeaderView: UIView {
     
     private let statusLabel: UILabel = {
         let label = UILabel()
-        label.text = "Текущий статус"
         label.font = .systemFont(ofSize: 14)
         label.textColor = .gray
         return label
@@ -117,22 +112,26 @@ final class ProfileHeaderView: UIView {
 
         statusTextField.snp.makeConstraints { make in
             make.top.equalTo(avatarImageView.snp.bottom).offset(16)
-            make.leading.equalToSuperview().offset(16)
-            make.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(36)
         }
 
         setStatusButton.snp.makeConstraints { make in
             make.top.equalTo(statusTextField.snp.bottom).offset(16)
-            make.leading.equalToSuperview().offset(16)
-            make.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(44)
             make.bottom.equalToSuperview().inset(16)
         }
     }
 
+    // MARK: - Public configure
+    func configure(with user: User) {
+        avatarImageView.image = user.avatar
+        nameLabel.text = user.fullName
+        statusLabel.text = user.status
+    }
 
-    
+    // MARK: - Actions
     private func setupActions() {
         statusTextField.addTarget(self, action: #selector(statusTextChanged(_:)), for: .editingChanged)
         setStatusButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
@@ -140,13 +139,9 @@ final class ProfileHeaderView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        avatarImageView.layer.cornerRadius = avatarImageView.frame.height / 2
-        avatarImageView.clipsToBounds = true
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
     }
-
-
     
-    // MARK: - Actions
     @objc private func statusTextChanged(_ textField: UITextField) {
         statusText = textField.text ?? ""
     }

@@ -5,10 +5,13 @@
 //  Created by MAXIM GORNOSTAEV on 22.07.2025.
 //
 
-import StorageService
 import UIKit
+import StorageService
 
 final class ProfileViewController: UIViewController {
+    
+    // MARK: - Properties
+    var user: User?
     
     private let tableView = UITableView(frame: .zero, style: .grouped)
     
@@ -21,20 +24,27 @@ final class ProfileViewController: UIViewController {
     
     private let photos = ["my_photo", "hulk", "pp", "skala"]
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-#if DEBUG
-tableView.backgroundColor = .systemGreen
-#else
-tableView.backgroundColor = .systemBlue
-#endif
-
+        setupView()
         setupTableView()
+    }
+    
+    // MARK: - Setup
+    private func setupView() {
+#if DEBUG
+        view.backgroundColor = .systemGreen
+#else
+        view.backgroundColor = .systemBlue
+#endif
+        title = "Profile"
     }
     
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -58,11 +68,7 @@ extension ProfileViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
-        } else {
-            return posts.count
-        }
+        return section == 0 ? 1 : posts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -83,7 +89,11 @@ extension ProfileViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if section == 0 {
-            return ProfileHeaderView()
+            let header = ProfileHeaderView()
+            if let user = user {
+                header.configure(with: user)
+            }
+            return header
         }
         return nil
     }
@@ -92,8 +102,6 @@ extension ProfileViewController: UITableViewDelegate {
         return section == 0 ? 240 : 0
     }
     
-    
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 0 {
             let photosVC = PhotosViewController()
@@ -101,5 +109,4 @@ extension ProfileViewController: UITableViewDelegate {
             navigationController?.pushViewController(photosVC, animated: true)
         }
     }
-    
 }

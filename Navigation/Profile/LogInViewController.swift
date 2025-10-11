@@ -13,7 +13,6 @@ final class LogInViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
 
-
     private let logoImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "VKLogo"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -65,6 +64,7 @@ final class LogInViewController: UIViewController {
         return button
     }()
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -79,6 +79,7 @@ final class LogInViewController: UIViewController {
         emailField.becomeFirstResponder()
     }
 
+    // MARK: - UI Setup
     private func setupViews() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -110,7 +111,7 @@ final class LogInViewController: UIViewController {
             emailField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             emailField.heightAnchor.constraint(equalToConstant: 50),
 
-            passwordField.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: 0),
+            passwordField.topAnchor.constraint(equalTo: emailField.bottomAnchor),
             passwordField.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
             passwordField.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             passwordField.heightAnchor.constraint(equalToConstant: 50),
@@ -120,20 +121,15 @@ final class LogInViewController: UIViewController {
             loginButton.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
             loginButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-            ])
+        ])
+    }
 
-        //contentView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor).isActive = true
-
-        }
-
-
-
+    // MARK: - Keyboard
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow),
                                                name: UIResponder.keyboardWillShowNotification,
                                                object: nil)
-
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillHide),
                                                name: UIResponder.keyboardWillHideNotification,
@@ -149,27 +145,45 @@ final class LogInViewController: UIViewController {
         scrollView.contentInset = .zero
     }
 
-    /*@objc private func loginTapped() {
-        print("Log In tapped")
-        let profileVC = ProfileViewController()
-        navigationController?.pushViewController(profileVC, animated: true)*/
-   
+    // MARK: - Actions
     @objc private func loginButtonTapped() {
+        guard let login = emailField.text, !login.isEmpty else {
+            showAlert(title: "Ошибка", message: "Введите логин")
+            return
+        }
+
+        let userService: UserService
+
+        #if DEBUG
+        userService = TestUserService()
+        #else
+        let currentUser = User(login: "wowgorno",
+                               fullName: "Максим Горностаев",
+                               avatar: UIImage(named: "avatar") ?? UIImage(),
+                               status: "Работаем, не отдыхаем 💪")
+        userService = CurrentUserService(user: currentUser)
+        #endif
+
+        guard let user = userService.getUser(login: login) else {
+            showAlert(title: "Ошибка", message: "Неверный логин")
+            return
+        }
+
         let feedVC = FeedViewController()
         feedVC.title = "Feed"
         let feedNav = UINavigationController(rootViewController: feedVC)
         feedNav.tabBarItem = UITabBarItem(title: "Feed", image: UIImage(systemName: "list.bullet"), tag: 0)
 
         let profileVC = ProfileViewController()
+        profileVC.user = user
         profileVC.title = "Profile"
         let profileNav = UINavigationController(rootViewController: profileVC)
         profileNav.tabBarItem = UITabBarItem(title: "Profile", image: UIImage(systemName: "person"), tag: 1)
 
         let tabBarController = UITabBarController()
-        tabBarController.viewControllers = [profileNav, feedNav] // сначала Profile
+        tabBarController.viewControllers = [profileNav, feedNav]
         tabBarController.selectedIndex = 0
 
-        // ✅ Получаем window через активную сцену
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = scene.windows.first {
             window.rootViewController = tabBarController
@@ -177,14 +191,10 @@ final class LogInViewController: UIViewController {
         }
     }
 
-    
+    // MARK: - Alert
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 }
-
-
-
-
-
-
-
-
-

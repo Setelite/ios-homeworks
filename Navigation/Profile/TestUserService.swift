@@ -8,16 +8,12 @@
 import UIKit
 
 final class TestUserService: UserService {
-    
-    private let testUser = User(
-        login: "testUser",
-        fullName: "Debug TestUser",
-        avatar: UIImage(systemName: "person.crop.circle.fill")!,
-        status: "Отладочная сборка активна!"
-    )
-    
+    private let testUser = User(login: "wowgorno",
+                                fullName: "Test User",
+                                avatar: UIImage(named: "avatar") ?? UIImage(),
+                                status: "DEBUG MODE")
+
     func getUser(login: String) -> User? {
-        // В Debug всегда возвращаем тестового пользователя
         return login == testUser.login ? testUser : nil
     }
 }

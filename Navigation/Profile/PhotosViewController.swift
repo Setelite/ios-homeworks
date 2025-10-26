@@ -37,7 +37,7 @@ final class PhotosViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = false
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .systemGray6   // ✅ серый фон как в макете
+        appearance.backgroundColor = .systemGray6   //  серый фон как в макете
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
@@ -46,7 +46,7 @@ final class PhotosViewController: UIViewController {
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8), // ✅ 8pt сверху
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8), //  8pt сверху
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)

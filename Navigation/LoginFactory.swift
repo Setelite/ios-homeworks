@@ -6,7 +6,7 @@
 //
 import Foundation
 
-/// Фабрика создания объектов проверки (делегата)
+/// проверка делегата
 protocol LoginFactory {
     func makeLoginInspector() -> LoginInspector
 }

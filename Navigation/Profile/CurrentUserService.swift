@@ -16,7 +16,7 @@ final class CurrentUserService: UserService {
     }
     
     func getUser(login: String) -> User? {
-        // Проверяем логин
+        // Проверка логина
         return login == user.login ? user : nil
     }
 }

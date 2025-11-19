@@ -6,7 +6,7 @@
 //
 import Foundation
 
-/// Делегат, который использует Checker для проверки логина и пароля
+/// делегат проверки логина и пароля
 final class LoginInspector: LoginViewControllerDelegate {
     func check(login: String, password: String) -> Bool {
         return Checker.shared.check(login: login, password: password)

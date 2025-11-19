@@ -42,7 +42,7 @@ final class PhotosTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(arrowImageView)
         
-        // Создаём 4 imageView
+      
         for _ in 0..<4 {
             let iv = UIImageView()
             iv.contentMode = .scaleAspectFill
@@ -58,12 +58,11 @@ final class PhotosTableViewCell: UITableViewCell {
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             
-            // Стрелка
+          
             arrowImageView.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             arrowImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             
-            // Фото
-            // Фото
+          
             imageViewsArray[0].topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
             imageViewsArray[0].leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             imageViewsArray[0].bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
@@ -78,18 +77,18 @@ final class PhotosTableViewCell: UITableViewCell {
             imageViewsArray[3].leadingAnchor.constraint(equalTo: imageViewsArray[2].trailingAnchor, constant: 8),
             imageViewsArray[3].trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
 
-            // Все фото равные по ширине
+            
             imageViewsArray[0].widthAnchor.constraint(equalTo: imageViewsArray[1].widthAnchor),
             imageViewsArray[1].widthAnchor.constraint(equalTo: imageViewsArray[2].widthAnchor),
             imageViewsArray[2].widthAnchor.constraint(equalTo: imageViewsArray[3].widthAnchor),
 
-            // ✅ Соотношение 1:1 для квадратных картинок
+            // Соотношение 1:1
             imageViewsArray[0].heightAnchor.constraint(equalTo: imageViewsArray[0].widthAnchor),
             imageViewsArray[1].heightAnchor.constraint(equalTo: imageViewsArray[1].widthAnchor),
             imageViewsArray[2].heightAnchor.constraint(equalTo: imageViewsArray[2].widthAnchor),
             imageViewsArray[3].heightAnchor.constraint(equalTo: imageViewsArray[3].widthAnchor),
 
-            // Все фото одинаковой высоты
+            // высота
             imageViewsArray[1].heightAnchor.constraint(equalTo: imageViewsArray[0].heightAnchor),
             imageViewsArray[2].heightAnchor.constraint(equalTo: imageViewsArray[0].heightAnchor),
             imageViewsArray[3].heightAnchor.constraint(equalTo: imageViewsArray[0].heightAnchor)

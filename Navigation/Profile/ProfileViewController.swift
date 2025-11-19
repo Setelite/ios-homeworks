@@ -64,7 +64,7 @@ final class ProfileViewController: UIViewController {
 extension ProfileViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2 // секция 0 = фото, секция 1 = посты
+        return 2 
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -97,6 +97,7 @@ extension ProfileViewController: UITableViewDelegate {
         }
         return nil
     }
+
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return section == 0 ? 240 : 0

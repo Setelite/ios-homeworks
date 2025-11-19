@@ -8,33 +8,35 @@
 import UIKit
 
 final class PhotosCollectionViewCell: UICollectionViewCell {
-    
-    private let photoImageView: UIImageView = {
+    static let reuseIdentifier = "PhotosCell"
+
+    private let imageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.layer.cornerRadius = 0
+        iv.layer.cornerRadius = 6
         return iv
     }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.addSubview(photoImageView)
-        photoImageView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(imageView)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            photoImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            photoImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            photoImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            photoImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
     func configure(with imageName: String) {
-        photoImageView.image = UIImage(named: imageName)
+        imageView.image = UIImage(named: imageName)
+    }
+
+    func configure(with image: UIImage) {
+        imageView.image = image
     }
 }
-

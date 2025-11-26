@@ -12,11 +12,11 @@ final class LogInViewController: UIViewController {
     
     // MARK: - Delegate
     weak var loginDelegate: LoginViewControllerDelegate?
-
+    
     // MARK: - UI Elements
     private let scrollView = UIScrollView()
     private let contentView = UIView()
-
+    
     private let logoImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "VKLogo"))
         imageView.contentMode = .scaleAspectFit
@@ -36,7 +36,7 @@ final class LogInViewController: UIViewController {
         field.translatesAutoresizingMaskIntoConstraints = false
         return field
     }()
-
+    
     private let passwordField: UITextField = {
         let field = UITextField()
         field.placeholder = "Password"
@@ -50,17 +50,14 @@ final class LogInViewController: UIViewController {
         field.translatesAutoresizingMaskIntoConstraints = false
         return field
     }()
+    
+    private lazy var loginButton = CustomButton(
+        title: "Войти",
+        backgroundColor: .systemBlue
+    ) { [weak self] in
+        self?.loginDelegate?.didLogin()
+    }
 
-    private let loginButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Log In", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.setBackgroundImage(UIImage(named: "BluePixel"), for: .normal)
-        button.layer.cornerRadius = 10
-        button.clipsToBounds = true
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
 
     // MARK: - Lifecycle
     override func viewDidLoad() {

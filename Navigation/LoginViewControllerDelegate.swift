@@ -8,6 +8,8 @@
 import Foundation
 
 /// Протокол, через который LoginViewController передаёт логин и пароль на проверку
+
 protocol LoginViewControllerDelegate: AnyObject {
     func check(login: String, password: String) -> Bool
+    func didLogin()   // ← ДОБАВЬ ЭТО!
 }

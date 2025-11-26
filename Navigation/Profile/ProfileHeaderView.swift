@@ -49,19 +49,15 @@ final class ProfileHeaderView: UIView {
         return textField
     }()
     
-    private let setStatusButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Показать статус", for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .regular)
-        button.layer.shadowColor = UIColor.black.cgColor
-        button.layer.shadowRadius = 4
-        button.layer.shadowOpacity = 0.7
-        button.layer.shadowOffset = CGSize(width: 4, height: 4)
-        return button
-    }()
+    private lazy var setStatusButton = CustomButton(
+        title: "Показать статус",
+        backgroundColor: .systemBlue
+    ) { [weak self] in
+        guard let self else { return }
+        self.statusLabel.text = self.statusText
+        print("Установлен статус: \(self.statusText)")
+    }
+
     
     // MARK: - Properties
     private var statusText: String = ""

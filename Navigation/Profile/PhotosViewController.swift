@@ -52,7 +52,7 @@ final class PhotosViewController: UIViewController {
     }
 
     deinit {
-        // отписка — ПРАВИЛЬНЫЙ МЕТОД
+        // отписка
         imagePublisherFacade.removeSubscription(for: self)
     }
 

@@ -179,8 +179,12 @@ final class LogInViewController: UIViewController {
 
     private func openMainInterface(with user: User) {
         let feedVC = FeedViewController()
-        let profileVC = ProfileViewController()
-        profileVC.user = user
+
+        // MVVM: создаём ViewModel
+        let viewModel = ProfileViewModel(login: user.login)
+
+        // Передаём ViewModel в контроллер
+        let profileVC = ProfileViewController(viewModel: viewModel)
 
         let tabBar = UITabBarController()
         tabBar.viewControllers = [
@@ -195,6 +199,7 @@ final class LogInViewController: UIViewController {
             window.makeKeyAndVisible()
         }
     }
+
 
     // MARK: - Alert
     private func showAlert(title: String, message: String) {

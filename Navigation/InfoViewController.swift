@@ -10,7 +10,7 @@ import UIKit
 class InfoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemGray6
 
         let button = UIButton(type: .system)
         button.setTitle("Show Alert", for: .normal)

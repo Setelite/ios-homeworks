@@ -3,9 +3,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
-   
-    private var loginInspector: LoginViewControllerDelegate?
+    var appCoordinator: AppCoordinator?
 
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
@@ -14,21 +12,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
         let window = UIWindow(windowScene: windowScene)
-
-        // экран логина
-        let loginVC = LogInViewController()
-
-        // делегат через фабрику
-        let loginFactory = MyLoginFactory()
-        let inspector = loginFactory.makeLoginInspector()
-        self.loginInspector = inspector
-
-      
-        loginVC.loginDelegate = inspector
-
-       
-        window.rootViewController = UINavigationController(rootViewController: loginVC)
-        window.makeKeyAndVisible()
         self.window = window
+
+        let appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator = appCoordinator
+        appCoordinator.start()
     }
 }

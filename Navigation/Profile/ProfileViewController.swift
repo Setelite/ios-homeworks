@@ -9,6 +9,9 @@ import UIKit
 import StorageService
 
 final class ProfileViewController: UIViewController {
+    
+    // MARK: - Coordinator callbacks
+    var onOpenPhotos: (([String]) -> Void)?
 
     // MARK: - MVVM
     private let viewModel: ProfileViewModel
@@ -58,8 +61,10 @@ final class ProfileViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
 
-        tableView.register(PhotosTableViewCell.self, forCellReuseIdentifier: PhotosTableViewCell.identifier)
-        tableView.register(PostTableViewCell.self, forCellReuseIdentifier: PostTableViewCell.identifier)
+        tableView.register(PhotosTableViewCell.self,
+                           forCellReuseIdentifier: PhotosTableViewCell.identifier)
+        tableView.register(PostTableViewCell.self,
+                           forCellReuseIdentifier: PostTableViewCell.identifier)
     }
 }
 
@@ -81,6 +86,7 @@ extension ProfileViewController: UITableViewDataSource {
                 withIdentifier: PhotosTableViewCell.identifier,
                 for: indexPath
             ) as! PhotosTableViewCell
+
             cell.configure(with: viewModel.photos)
             return cell
         } else {
@@ -88,6 +94,7 @@ extension ProfileViewController: UITableViewDataSource {
                 withIdentifier: PostTableViewCell.identifier,
                 for: indexPath
             ) as! PostTableViewCell
+
             cell.configure(with: viewModel.posts[indexPath.row])
             return cell
         }
@@ -107,6 +114,7 @@ extension ProfileViewController: UITableViewDelegate {
             }
             return header
         }
+
         return nil
     }
 
@@ -118,10 +126,9 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    didSelectRowAt indexPath: IndexPath) {
 
-        if indexPath.section == 0 {
-            let photosVC = PhotosViewController()
-            photosVC.photos = viewModel.photos
-            navigationController?.pushViewController(photosVC, animated: true)
-        }
+        guard indexPath.section == 0 else { return }
+
+        // Навигация через координатор
+        onOpenPhotos?(viewModel.photos)
     }
 }

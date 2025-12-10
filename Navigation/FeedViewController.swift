@@ -9,6 +9,9 @@ import UIKit
 
 final class FeedViewController: UIViewController {
 
+    
+    var onOpenPost: ((Post) -> Void)?
+
     // MARK: - Model
     private let model = FeedModel()
 

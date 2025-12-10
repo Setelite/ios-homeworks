@@ -10,28 +10,14 @@ import StorageService
 
 final class ProfileViewModel {
 
-    // MARK: - Inputs
-    private let userService: UserService
-    private let login: String
+    let user: User?
+    var posts: [Post]
+    var photos: [String]
 
-    // MARK: - Outputs (данные для View)
-    private(set) var user: User?
-    private(set) var posts: [Post] = []
-    private(set) var photos: [String] = []
-
-    // MARK: - Binding callback
     var onDataChanged: (() -> Void)?
 
-    // MARK: - Init
-    init(login: String, userService: UserService = TestUserService()) {
-        self.login = login
-        self.userService = userService
-        loadData()
-    }
-
-    // MARK: - Methods
-    private func loadData() {
-        self.user = userService.getUser(login: login)
+    init(user: User?) {
+        self.user = user
 
         self.posts = [
             Post(author: "Wowgorno", description: "На работе тоже есть чем заняться!", image: "my_photo", likes: 120, views: 300),
@@ -41,7 +27,5 @@ final class ProfileViewModel {
         ]
 
         self.photos = ["my_photo", "hulk", "pp", "skala"]
-
-        onDataChanged?()    // уведомляем контроллер
     }
 }

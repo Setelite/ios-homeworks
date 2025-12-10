@@ -4,12 +4,25 @@
 //
 //  Created by MAXIM GORNOSTAEV on 10/19/25.
 //
+import UIKit
+
 final class LoginInspector: LoginViewControllerDelegate {
+
+    var onLoginSuccess: ((User) -> Void)?
+
     func check(login: String, password: String) -> Bool {
-        return login == "wowgorno" && password == "123456"
+        Checker.shared.check(login: login, password: password)
     }
 
     func didLogin() {
-        print("LoginInspector: didLogin() вызван")
+        print("[DEBUG] didLogin called")
+        let user = User(
+            login: "wowgorno",
+            fullName: "Максим Горностаев",
+            avatar: UIImage(named: "avatar") ?? UIImage(),
+            status: "Работаем, не отдыхаем"
+        )
+
+        onLoginSuccess?(user)
     }
 }

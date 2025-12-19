@@ -24,15 +24,21 @@ final class TabBarCoordinator: Coordinator {
         feedCoordinator.start()
         profileCoordinator.start()
 
-        feedCoordinator.navigationController.tabBarItem =
-            UITabBarItem(title: "Feed", image: UIImage(systemName: "list.bullet"), tag: 0)
-        
-        profileCoordinator.navigationController.tabBarItem =
-            UITabBarItem(title: "Profile", image: UIImage(systemName: "person"), tag: 1)
+        let infoVC = InfoViewController()
+        infoVC.title = "Info"
+        infoVC.tabBarItem = UITabBarItem(
+            title: "Info",
+            image: UIImage(systemName: "info.circle"),
+            selectedImage: UIImage(systemName: "info.circle.fill")
+        )
+
+        let infoNav = UINavigationController(rootViewController: infoVC)
 
         tabBarController.viewControllers = [
             feedCoordinator.navigationController,
+            infoNav,
             profileCoordinator.navigationController
         ]
     }
+
 }

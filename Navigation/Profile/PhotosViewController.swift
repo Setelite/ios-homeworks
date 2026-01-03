@@ -21,7 +21,6 @@ final class PhotosViewController: UIViewController {
     private var sourceImages: [UIImage] = []
     private var processedImages: [UIImage] = []
     
-    // Для последовательного тестирования QoS
     private let qosLevels: [QualityOfService] = [
         .userInteractive,
         .userInitiated,
@@ -61,7 +60,7 @@ final class PhotosViewController: UIViewController {
         tv.layer.cornerRadius = 8
         tv.layer.borderWidth = 1
         tv.layer.borderColor = UIColor.gray.cgColor
-        tv.isHidden = true // Скрыт по умолчанию, можно показать по необходимости
+        tv.isHidden = true
         return tv
     }()
     
@@ -86,15 +85,11 @@ final class PhotosViewController: UIViewController {
         }
     }
     
-    // ДОБАВЛЕНО: Метод для добавления логов
     private func addLog(_ message: String) {
-        // 1. Всегда выводим в консоль
         print("📋 LOG: \(message)")
         
-        // 2. Также используем NSLog для гарантии
         NSLog("📋 %@", message)
         
-        // 3. Добавляем в TextView
         DispatchQueue.main.async {
             let timestamp = DateFormatter.localizedString(from: Date(),
                                                          dateStyle: .none,
@@ -103,32 +98,30 @@ final class PhotosViewController: UIViewController {
             
             self.logTextView.text = logEntry + (self.logTextView.text ?? "")
             
-            // Прокручиваем вверх к новому сообщению
             self.logTextView.scrollRangeToVisible(NSRange(location: 0, length: 0))
         }
     }
     
     // MARK: - File: processing launcher
     private func startProcessing() {
-        addLog("📸 Photos count = \(photos.count)")
+        addLog("Photos count = \(photos.count)")
         
         sourceImages = photos.compactMap {
             if let img = UIImage(named: $0) {
                 return img
             } else {
-                addLog("⚠️ IMAGE NOT FOUND: \($0)")
+                addLog("IMAGE NOT FOUND: \($0)")
                 return nil
             }
         }
         
-        addLog("📸 Loaded source images: \(sourceImages.count)")
+        addLog("Loaded source images: \(sourceImages.count)")
         
         guard !sourceImages.isEmpty else {
-            addLog("❌ Нет изображений — нечего обрабатывать")
+            addLog("Нет изображений — нечего обрабатывать")
             return
         }
         
-        // Начинаем последовательное тестирование QoS
         startNextQoSTest()
     }
     
@@ -146,7 +139,6 @@ final class PhotosViewController: UIViewController {
         addLog("🚀 Начинаем тест QoS: \(qosName)")
         updateStatus("Тестируем QoS: \(qosName)\nОжидайте...")
         
-        // Ждем 1 секунду между тестами для чистоты эксперимента
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.processImagesWithQoS(qos)
         }
@@ -188,18 +180,16 @@ final class PhotosViewController: UIViewController {
                 return UIImage(cgImage: cg)
             }
             
-            // Обновляем UI и логируем результат
             DispatchQueue.main.async {
                 self.processedImages = uiImages
                 self.collectionView.reloadData()
                 
                 let imageCount = uiImages.count
                 
-                // Логируем результаты
-                self.addLog("✅ Обработка \(qosName) завершена")
-                self.addLog("   ⏱ Время: \(String(format: "%.3f", duration)) секунд")
-                self.addLog("   🖼 Изображений: \(imageCount)")
-                self.addLog("   📊 Успешно: \(imageCount)/\(self.sourceImages.count)")
+                self.addLog("Обработка \(qosName) завершена")
+                self.addLog("Время: \(String(format: "%.3f", duration)) секунд")
+                self.addLog("Изображений: \(imageCount)")
+                self.addLog("Успешно: \(imageCount)/\(self.sourceImages.count)")
                 
                 // Обновляем статус
                 self.updateStatus("""
@@ -208,10 +198,8 @@ final class PhotosViewController: UIViewController {
                 Изображений: \(imageCount)
                 """)
                 
-                // Переходим к следующему QoS
                 self.currentQoSIndex += 1
                 
-                // Ждем 2 секунды перед следующим тестом
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                     self.startNextQoSTest()
                 }
@@ -230,12 +218,10 @@ final class PhotosViewController: UIViewController {
             statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
         
-        // ДОБАВЛЕНО: Кнопка показа логов
         view.addSubview(showLogsButton)
         showLogsButton.translatesAutoresizingMaskIntoConstraints = false
         showLogsButton.addTarget(self, action: #selector(toggleLogs), for: .touchUpInside)
         
-        // ДОБАВЛЕНО: TextView для логов
         view.addSubview(logTextView)
         logTextView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -284,7 +270,7 @@ final class PhotosViewController: UIViewController {
     
     private func updateStatus(_ text: String) {
         statusLabel.text = text
-        addLog("📱 Статус: \(text)")
+        addLog("Статус: \(text)")
     }
 }
 

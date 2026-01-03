@@ -7,9 +7,7 @@
 
 import Foundation
 
-/// Протокол, через который LoginViewController передаёт логин и пароль на проверку
-
 protocol LoginViewControllerDelegate: AnyObject {
-    func check(login: String, password: String) -> Bool
-    func didLogin()
+    func checkCredentials(email: String, password: String)
+    func signUp(email: String, password: String)
 }

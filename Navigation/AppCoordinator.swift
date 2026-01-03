@@ -11,7 +11,7 @@ final class AppCoordinator: Coordinator {
     private let window: UIWindow
     private let navigationController = UINavigationController()
 
-    private var loginCoordinator: LoginCoordinator?   // ← важно: храним координатор
+    private var loginCoordinator: LoginCoordinator?  
 
     init(window: UIWindow) {
         self.window = window

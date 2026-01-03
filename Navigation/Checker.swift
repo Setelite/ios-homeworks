@@ -6,12 +6,12 @@
 //
 final class Checker {
     static let shared = Checker()
-    private let login = "wowgorno"
+    private let email = "wowgorno@example.com" 
     private let password = "123456"
     private init() {}
 
-    func check(login: String, password: String) -> Bool {
-        print("[DEBUG] Checker comparing. expected: (\(self.login),\(self.password)) got: (\(login),\(password))")
-        return login == self.login && password == self.password
+    func check(email: String, password: String) -> Bool {
+        print("[DEBUG] Checker comparing. expected: (\(self.email),\(self.password)) got: (\(email),\(password))")
+        return email == self.email && password == self.password
     }
 }

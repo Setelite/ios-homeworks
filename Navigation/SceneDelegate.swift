@@ -1,4 +1,5 @@
 import UIKit
+import FirebaseAuth
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -15,18 +16,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
 
-        // 1. Рандомно выбираем конфигурацию
         appConfiguration = makeRandomConfiguration()
 
-        // 2. Делаем сетевой запрос при старте приложения
         if let configuration = appConfiguration {
             NetworkService.request(for: configuration)
         }
 
-        // 3. Запускаем координатор (как и было)
         let appCoordinator = AppCoordinator(window: window)
         self.appCoordinator = appCoordinator
         appCoordinator.start()
+    }
+
+    // 🔥 ВАЖНО ДЛЯ ЗАЧЁТА
+    func sceneDidDisconnect(_ scene: UIScene) {
+        do {
+            try Auth.auth().signOut()
+            print("✅ User signed out")
+        } catch {
+            print("❌ Sign out error:", error.localizedDescription)
+        }
     }
 
     private func makeRandomConfiguration() -> AppConfiguration {

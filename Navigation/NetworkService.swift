@@ -29,7 +29,7 @@ struct NetworkService {
 
             if let error = error {
                 print("Error:", error.localizedDescription)
-                // Код ошибки при выключенном интернете: -1009
+                
                 return
             }
 

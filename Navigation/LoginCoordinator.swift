@@ -9,11 +9,9 @@ import UIKit
 
 final class LoginCoordinator: Coordinator {
 
-    var navigationController: UINavigationController
-    var onFinish: ((User) -> Void)?   // ← добавили
+    private let navigationController: UINavigationController
 
-    private let loginFactory = MyLoginFactory()
-    private var inspector: LoginInspector?
+    var onFinish: ((User) -> Void)?
 
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -22,18 +20,14 @@ final class LoginCoordinator: Coordinator {
     func start() {
         let loginVC = LogInViewController()
 
-        let loginInspector = loginFactory.makeLoginInspector()
-        loginVC.loginDelegate = loginInspector
-        self.inspector = loginInspector
-
-        // подписываемся на событие успеха
-        loginInspector.onLoginSuccess = { [weak self] user in
-            print("[DEBUG] LoginCoordinator.onLoginSuccess called")
-
-            self?.onFinish?(user)     // ← передаём user в AppCoordinator
+        let checkerService = CheckerService() 
+        let inspector = LoginInspector(checkerService: checkerService)
+        inspector.onLoginSuccess = { [weak self] user in
+            self?.onFinish?(user)
         }
 
-        navigationController.setViewControllers([loginVC], animated: false)
-
+        loginVC.loginDelegate = inspector
+        navigationController.pushViewController(loginVC, animated: true)
     }
 }
+

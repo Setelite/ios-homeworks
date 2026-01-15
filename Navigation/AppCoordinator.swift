@@ -11,52 +11,49 @@ final class AppCoordinator: Coordinator {
     private let window: UIWindow
     private let navigationController = UINavigationController()
 
-    private var loginCoordinator: LoginCoordinator?
+    private var passwordCoordinator: PasswordCoordinator?
+    private var tabBarCoordinator: TabBarCoordinator?
 
     init(window: UIWindow) {
         self.window = window
     }
 
     func start() {
-    
-        showDocuments()
-
-
-    }
-
-    // MARK: - Documents Flow (ДЗ)
-    private func showDocuments() {
-        let documentsVC = ViewController()
-        documentsVC.title = "Documents"
-
-        navigationController.viewControllers = [documentsVC]
-
+        showPassword()
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
     }
 
-    // MARK: - Login Flow
-    private func showLogin() {
-        let coordinator = LoginCoordinator(navigationController: navigationController)
-        self.loginCoordinator = coordinator
+    // MARK: - Password Flow (ШАГ 1–3)
 
-        coordinator.onFinish = { [weak self] user in
-            print("[DEBUG] Login finished. User =", user.login)
-            self?.showMainFlow(user: user)
+    private func showPassword() {
+        let coordinator = PasswordCoordinator(navigationController: navigationController)
+        passwordCoordinator = coordinator
+
+        coordinator.onFinish = { [weak self] in
+            self?.showMainFlow()
         }
 
         coordinator.start()
-
-        window.rootViewController = navigationController
-        window.makeKeyAndVisible()
     }
 
-    private func showMainFlow(user: User) {
-        let tabCoordinator = TabBarCoordinator(user: user)
-        tabCoordinator.start()
+    // MARK: - Main Flow (ШАГ 4)
 
-        window.rootViewController = tabCoordinator.tabBarController
+    private func showMainFlow() {
+        let user = User(
+            login: "local",
+            fullName: "Local User",
+            avatar: UIImage(),
+            status: "Authorized"
+        )
 
-        loginCoordinator = nil
+        let coordinator = TabBarCoordinator(user: user)
+        tabBarCoordinator = coordinator
+        coordinator.start()
+
+        window.rootViewController = coordinator.tabBarController
+        window.makeKeyAndVisible()
+
+        passwordCoordinator = nil
     }
 }

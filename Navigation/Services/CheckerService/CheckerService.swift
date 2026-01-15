@@ -5,7 +5,7 @@
 //  Created by MAXIM GORNOSTAEV on 12/24/25.
 //
 
-import FirebaseAuth
+import Foundation
 
 final class CheckerService: CheckerServiceProtocol {
 
@@ -14,12 +14,15 @@ final class CheckerService: CheckerServiceProtocol {
         password: String,
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
-        Auth.auth().signIn(withEmail: email, password: password) { _, error in
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                completion(.success(()))
-            }
+        
+        if !email.isEmpty && !password.isEmpty {
+            completion(.success(()))
+        } else {
+            completion(.failure(NSError(
+                domain: "Auth",
+                code: 0,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid credentials"]
+            )))
         }
     }
 
@@ -28,13 +31,7 @@ final class CheckerService: CheckerServiceProtocol {
         password: String,
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
-        Auth.auth().createUser(withEmail: email, password: password) { _, error in
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                completion(.success(()))
-            }
-        }
+        completion(.success(()))
     }
 }
 

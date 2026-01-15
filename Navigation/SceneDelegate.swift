@@ -1,5 +1,4 @@
 import UIKit
-import FirebaseAuth
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -27,7 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appCoordinator.start()
     }
 
-    // 🔥 ВАЖНО ДЛЯ ЗАЧЁТА
+    /* 🔥 ВАЖНО ДЛЯ ЗАЧЁТА
     func sceneDidDisconnect(_ scene: UIScene) {
         do {
             try Auth.auth().signOut()
@@ -36,6 +35,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             print("❌ Sign out error:", error.localizedDescription)
         }
     }
+    */
 
     private func makeRandomConfiguration() -> AppConfiguration {
         let configurations: [AppConfiguration] = [

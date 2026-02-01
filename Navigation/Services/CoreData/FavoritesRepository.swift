@@ -12,50 +12,42 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
     static let shared = FavoritesRepository()
     private init() {}
 
-    private let context = CoreDataStack.shared.context
-
+    // MARK: - Save (background)
     func save(post: Post) {
-        guard !isFavorite(id: post.id) else { return }
+        let context = CoreDataStack.shared.newBackgroundContext()
 
-        let entity = FavoritePostEntity(context: context)
-        entity.id = post.id
-        entity.author = post.author
-        entity.text = post.description
-        entity.image = post.image          // ✅ ВАЖНО
-        entity.likes = Int64(post.likes)
-        entity.views = Int64(post.views)
+        context.perform {
+            guard !self.isFavorite(id: post.id, context: context) else { return }
 
-        CoreDataStack.shared.saveContext()
-    }
+            let entity = FavoritePostEntity(context: context)
+            entity.id = post.id
+            entity.author = post.author
+            entity.text = post.description
+            entity.image = post.image
+            entity.likes = Int64(post.likes)
+            entity.views = Int64(post.views)
 
-    func fetchAll() -> [Post] {
-        let request: NSFetchRequest<FavoritePostEntity> =
-            FavoritePostEntity.fetchRequest()
-
-        let result = (try? context.fetch(request)) ?? []
-
-        return result.map {
-            Post(
-                id: $0.id ?? "",
-                author: $0.author ?? "",
-                description: $0.text ?? "",
-                image: $0.image ?? "",      // ✅ ВАЖНО
-                likes: Int($0.likes),
-                views: Int($0.views)
-            )
+            try? context.save()
         }
     }
 
-    func isFavorite(id: String) -> Bool {
-        let request: NSFetchRequest<FavoritePostEntity> =
-            FavoritePostEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", id)
-        request.fetchLimit = 1
+    // MARK: - Remove (background)
+    func remove(id: String) {
+        let context = CoreDataStack.shared.newBackgroundContext()
 
-        let count = (try? context.count(for: request)) ?? 0
-        return count > 0
+        context.perform {
+            let request: NSFetchRequest<FavoritePostEntity> =
+                FavoritePostEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", id)
+
+            let objects = (try? context.fetch(request)) ?? []
+            objects.forEach { context.delete($0) }
+
+            try? context.save()
+        }
     }
 
+    // MARK: - Toggle
     func toggle(post: Post) -> Bool {
         if isFavorite(id: post.id) {
             remove(id: post.id)
@@ -66,14 +58,64 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
         }
     }
 
-    private func remove(id: String) {
+    // MARK: - Fetch all (viewContext)
+    func fetchAll() -> [Post] {
+        let context = CoreDataStack.shared.viewContext
+
+        let request: NSFetchRequest<FavoritePostEntity> =
+            FavoritePostEntity.fetchRequest()
+
+        let result = (try? context.fetch(request)) ?? []
+
+        return result.map {
+            Post(
+                id: $0.id ?? "",
+                author: $0.author ?? "",
+                description: $0.text ?? "",
+                image: $0.image ?? "",
+                likes: Int($0.likes),
+                views: Int($0.views)
+            )
+        }
+    }
+
+    // MARK: - Fetch by author (ДЗ!)
+    func fetch(by author: String) -> [Post] {
+        let context = CoreDataStack.shared.viewContext
+
+        let request: NSFetchRequest<FavoritePostEntity> =
+            FavoritePostEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "author == %@", author)
+
+        let result = (try? context.fetch(request)) ?? []
+
+        return result.map {
+            Post(
+                id: $0.id ?? "",
+                author: $0.author ?? "",
+                description: $0.text ?? "",
+                image: $0.image ?? "",
+                likes: Int($0.likes),
+                views: Int($0.views)
+            )
+        }
+    }
+
+    // MARK: - Is favorite
+    func isFavorite(id: String) -> Bool {
+        isFavorite(id: id, context: CoreDataStack.shared.viewContext)
+    }
+
+    private func isFavorite(
+        id: String,
+        context: NSManagedObjectContext
+    ) -> Bool {
         let request: NSFetchRequest<FavoritePostEntity> =
             FavoritePostEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id)
+        request.fetchLimit = 1
 
-        let objects = (try? context.fetch(request)) ?? []
-        objects.forEach { context.delete($0) }
-
-        CoreDataStack.shared.saveContext()
+        let count = (try? context.count(for: request)) ?? 0
+        return count > 0
     }
 }

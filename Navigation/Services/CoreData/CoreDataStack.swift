@@ -15,21 +15,22 @@ final class CoreDataStack {
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Navigation")
         container.loadPersistentStores { _, error in
-            if let error = error {
+            if let error {
                 fatalError("CoreData error: \(error)")
             }
         }
         return container
     }()
 
-    var context: NSManagedObjectContext {
+    // MARK: - ViewContext (только для чтения)
+    var viewContext: NSManagedObjectContext {
         persistentContainer.viewContext
     }
 
-    func saveContext() {
-        let context = context
-        if context.hasChanges {
-            try? context.save()
-        }
+    // MARK: - BackgroundContext (для записи)
+    func newBackgroundContext() -> NSManagedObjectContext {
+        let context = persistentContainer.newBackgroundContext()
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        return context
     }
 }

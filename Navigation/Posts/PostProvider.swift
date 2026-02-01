@@ -7,30 +7,30 @@
 
 import Foundation
 
-final class PostProvider {
+enum PostProvider {
 
     static func makePosts() -> [Post] {
         [
             Post(
-                author: "Wowgorno",
+                author: "Нетология",
                 description: "Первый пост",
                 image: "post1",
-                likes: 120,
-                views: 340
+                likes: 10,
+                views: 120
             ),
             Post(
-                author: "Maria",
+                author: "iOS Dev",
                 description: "Второй пост",
                 image: "post2",
-                likes: 89,
-                views: 210
+                likes: 25,
+                views: 300
             ),
             Post(
-                author: "John",
+                author: "Swift",
                 description: "Третий пост",
                 image: "post3",
-                likes: 450,
-                views: 980
+                likes: 42,
+                views: 512
             )
         ]
     }

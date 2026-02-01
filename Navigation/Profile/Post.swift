@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Post {
+struct Post: Equatable {
     let id: String
     let author: String
     let description: String
@@ -15,13 +15,14 @@ struct Post {
     let likes: Int
     let views: Int
 
-    // Add an initializer for easy migration
-    init(id: String = UUID().uuidString,
-         author: String,
-         description: String,
-         image: String,
-         likes: Int,
-         views: Int) {
+    init(
+        id: String = UUID().uuidString,
+        author: String,
+        description: String,
+        image: String,
+        likes: Int,
+        views: Int
+    ) {
         self.id = id
         self.author = author
         self.description = description

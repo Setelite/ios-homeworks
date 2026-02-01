@@ -29,3 +29,4 @@ final class ProfileViewModel {
         self.photos = ["my_photo", "hulk", "pp", "skala"]
     }
 }
+

@@ -9,15 +9,15 @@ import UIKit
 import StorageService
 
 final class ProfileViewController: UIViewController {
-    
-    // MARK: - Coordinator callbacks
-    var onOpenPhotos: (([String]) -> Void)?
 
-    // MARK: - MVVM
+    // MARK: - Properties
     private let viewModel: ProfileViewModel
+    private let tableView = UITableView(frame: .zero, style: .plain)
 
-    // MARK: - UI
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    enum Section: Int, CaseIterable {
+        case photos
+        case posts
+    }
 
     // MARK: - Init
     init(viewModel: ProfileViewModel) {
@@ -32,19 +32,14 @@ final class ProfileViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        setupView()
+        setupUI()
         setupTableView()
-
-        viewModel.onDataChanged = { [weak self] in
-            self?.tableView.reloadData()
-        }
     }
 
-    // MARK: - Setup
-    private func setupView() {
-        view.backgroundColor = .white
+    // MARK: - UI
+    private func setupUI() {
         title = "Profile"
+        view.backgroundColor = .systemBackground
     }
 
     private func setupTableView() {
@@ -52,44 +47,79 @@ final class ProfileViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
-        tableView.delegate = self
         tableView.dataSource = self
+        tableView.delegate = self
 
-        tableView.register(PhotosTableViewCell.self,
-                           forCellReuseIdentifier: PhotosTableViewCell.identifier)
-        tableView.register(PostTableViewCell.self,
-                           forCellReuseIdentifier: PostTableViewCell.identifier)
+        tableView.register(
+            PostTableViewCell.self,
+            forCellReuseIdentifier: PostTableViewCell.identifier
+        )
+
+        tableView.tableHeaderView = makeHeaderView()
+    }
+
+    private func makeHeaderView() -> UIView {
+        let headerView = ProfileHeaderView()
+
+        if let user = viewModel.user {
+            headerView.configure(with: user)
+        }
+
+        // важный момент: tableHeaderView НЕ считает autoLayout
+        let width = view.bounds.width
+        headerView.frame = CGRect(x: 0, y: 0, width: width, height: 240)
+
+        return headerView
     }
 }
 
-// MARK: - DataSource
+// MARK: - UITableViewDataSource
+
 extension ProfileViewController: UITableViewDataSource {
 
-    func numberOfSections(in tableView: UITableView) -> Int { 2 }
-
-    func tableView(_ tableView: UITableView,
-                   numberOfRowsInSection section: Int) -> Int {
-        section == 0 ? 1 : viewModel.posts.count
+    func numberOfSections(in tableView: UITableView) -> Int {
+        Section.allCases.count
     }
 
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
 
-        if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: PhotosTableViewCell.identifier,
-                for: indexPath
-            ) as! PhotosTableViewCell
+        guard let section = Section(rawValue: section) else { return 0 }
 
-            cell.configure(with: viewModel.photos)
+        switch section {
+        case .photos:
+            return 1
+        case .posts:
+            return viewModel.posts.count
+        }
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+
+        guard let section = Section(rawValue: indexPath.section) else {
+            return UITableViewCell()
+        }
+
+        switch section {
+
+        case .photos:
+            let cell = UITableViewCell(style: .default, reuseIdentifier: "PhotosCell")
+            cell.textLabel?.text = "Фотографии"
+            cell.accessoryType = .disclosureIndicator
             return cell
-        } else {
+
+        case .posts:
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: PostTableViewCell.identifier,
                 for: indexPath
@@ -101,34 +131,28 @@ extension ProfileViewController: UITableViewDataSource {
     }
 }
 
-// MARK: - Delegate
+// MARK: - UITableViewDelegate
+
 extension ProfileViewController: UITableViewDelegate {
 
-    func tableView(_ tableView: UITableView,
-                   viewForHeaderInSection section: Int) -> UIView? {
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        tableView.deselectRow(at: indexPath, animated: true)
 
-        if section == 0 {
-            let header = ProfileHeaderView()
-            if let user = viewModel.user {
-                header.configure(with: user)
-            }
-            return header
+        guard let section = Section(rawValue: indexPath.section) else { return }
+
+        switch section {
+
+        case .photos:
+            let vc = PhotosViewController()
+            navigationController?.pushViewController(vc, animated: true)
+
+        case .posts:
+            let post = viewModel.posts[indexPath.row]
+            let vc = PostViewController(post: post)
+            navigationController?.pushViewController(vc, animated: true)
         }
-
-        return nil
-    }
-
-    func tableView(_ tableView: UITableView,
-                   heightForHeaderInSection section: Int) -> CGFloat {
-        section == 0 ? 240 : 0
-    }
-
-    func tableView(_ tableView: UITableView,
-                   didSelectRowAt indexPath: IndexPath) {
-
-        guard indexPath.section == 0 else { return }
-
-        // Навигация через координатор
-        onOpenPhotos?(viewModel.photos)
     }
 }

@@ -10,11 +10,12 @@ import UIKit
 final class PostCell: UITableViewCell {
 
     private let titleLabel = UILabel()
-    var onDoubleTap: (() -> Void)?
+    private let likeImageView = UIImageView()
+
+    var onLikeTap: (() -> Void)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        selectionStyle = .none
         setupUI()
         setupGesture()
     }
@@ -23,42 +24,62 @@ final class PostCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        titleLabel.text = nil
-        onDoubleTap = nil
-    }
-
-    func configure(with post: Post) {
+    func configure(post: Post, isFavorite: Bool) {
         titleLabel.text = post.description
+        likeImageView.image = UIImage(
+            systemName: isFavorite ? "heart.fill" : "heart"
+        )
+        likeImageView.tintColor = isFavorite ? .systemRed : .lightGray
     }
 
     private func setupUI() {
+        selectionStyle = .none
+
         titleLabel.numberOfLines = 0
         titleLabel.font = .systemFont(ofSize: 16)
 
+        likeImageView.contentMode = .scaleAspectFit
+        likeImageView.isUserInteractionEnabled = false
+
         contentView.addSubview(titleLabel)
-        contentView.isUserInteractionEnabled = true
+        contentView.addSubview(likeImageView)
+
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        likeImageView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            // ❤️ ЛАЙК — ФИКСИРОВАННЫЙ РАЗМЕР
+            likeImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            likeImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            likeImageView.widthAnchor.constraint(equalToConstant: 24),
+            likeImageView.heightAnchor.constraint(equalToConstant: 24),
+
+            // ТЕКСТ
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            titleLabel.trailingAnchor.constraint(equalTo: likeImageView.leadingAnchor, constant: -12),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
             titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
     }
 
     private func setupGesture() {
-        let tap = UITapGestureRecognizer(
-            target: self,
-            action: #selector(doubleTap)
-        )
+        let tap = UITapGestureRecognizer(target: self, action: #selector(likeTapped))
         tap.numberOfTapsRequired = 2
         contentView.addGestureRecognizer(tap)
     }
 
-    @objc private func doubleTap() {
-        onDoubleTap?()
+    @objc private func likeTapped() {
+        animateLike()
+        onLikeTap?()
+    }
+
+    private func animateLike() {
+        UIView.animate(withDuration: 0.15, animations: {
+            self.likeImageView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
+        }) { _ in
+            UIView.animate(withDuration: 0.15) {
+                self.likeImageView.transform = .identity
+            }
+        }
     }
 }

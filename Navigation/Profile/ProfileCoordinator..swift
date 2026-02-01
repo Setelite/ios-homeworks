@@ -9,27 +9,19 @@ import UIKit
 
 final class ProfileCoordinator: Coordinator {
 
-    let navigationController = UINavigationController()
-    private let user: User
+    private let navigationController: UINavigationController
+    private let userService: UserService
 
-    init(user: User) {
-        self.user = user
+    init(navigationController: UINavigationController,
+         userService: UserService = CurrentUserService()) {
+        self.navigationController = navigationController
+        self.userService = userService
     }
 
     func start() {
+        let user = userService.getUser(login: "Wowgorno")
         let viewModel = ProfileViewModel(user: user)
         let vc = ProfileViewController(viewModel: viewModel)
-
-        vc.onOpenPhotos = { [weak self] photos in
-            self?.showPhotos(photos)
-        }
-
-        navigationController.setViewControllers([vc], animated: false)
-    }
-
-    private func showPhotos(_ photos: [String]) {
-        let vc = PhotosViewController()
-        vc.photos = photos
-        navigationController.pushViewController(vc, animated: true)
+        navigationController.pushViewController(vc, animated: false)
     }
 }

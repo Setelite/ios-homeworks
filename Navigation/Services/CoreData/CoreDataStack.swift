@@ -13,9 +13,9 @@ final class CoreDataStack {
     private init() {}
 
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "FavoritesModel")
+        let container = NSPersistentContainer(name: "Navigation")
         container.loadPersistentStores { _, error in
-            if let error {
+            if let error = error {
                 fatalError("CoreData error: \(error)")
             }
         }
@@ -27,11 +27,9 @@ final class CoreDataStack {
     }
 
     func saveContext() {
-        guard context.hasChanges else { return }
-        do {
-            try context.save()
-        } catch {
-            print("❌ CoreData save error:", error)
+        let context = context
+        if context.hasChanges {
+            try? context.save()
         }
     }
 }

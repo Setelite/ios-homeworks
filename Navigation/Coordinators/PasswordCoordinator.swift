@@ -21,6 +21,6 @@ final class PasswordCoordinator: Coordinator {
         vc.onSuccess = { [weak self] in
             self?.onFinish?()
         }
-        navigationController.setViewControllers([vc], animated: false)
+        navigationController.pushViewController(vc, animated: true)
     }
 }

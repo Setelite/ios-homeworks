@@ -9,6 +9,9 @@ import UIKit
 
 final class FavoritesViewController: UIViewController {
 
+    var onOpenFiles: (() -> Void)?
+    var onOpenSettings: (() -> Void)?
+
     private let tableView = UITableView()
     private var posts: [Post] = []
 
@@ -43,6 +46,20 @@ final class FavoritesViewController: UIViewController {
     }
 
     private func setupNavigationBar() {
+        let filesButton = UIBarButtonItem(
+            image: UIImage(systemName: "folder"),
+            style: .plain,
+            target: self,
+            action: #selector(openFiles)
+        )
+
+        let settingsButton = UIBarButtonItem(
+            image: UIImage(systemName: "gearshape"),
+            style: .plain,
+            target: self,
+            action: #selector(openSettings)
+        )
+
         let searchButton = UIBarButtonItem(
             image: UIImage(systemName: "magnifyingglass"),
             style: .plain,
@@ -57,6 +74,7 @@ final class FavoritesViewController: UIViewController {
             action: #selector(clearFilter)
         )
 
+        navigationItem.leftBarButtonItems = [settingsButton, filesButton]
         navigationItem.rightBarButtonItems = [clearButton, searchButton]
     }
 
@@ -104,6 +122,14 @@ final class FavoritesViewController: UIViewController {
 
     @objc private func clearFilter() {
         loadAll()
+    }
+
+    @objc private func openFiles() {
+        onOpenFiles?()
+    }
+
+    @objc private func openSettings() {
+        onOpenSettings?()
     }
 }
 

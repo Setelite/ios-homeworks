@@ -12,6 +12,7 @@ import iOSIntPackage
 
 class PostTableViewCell: UITableViewCell {
     static let identifier = "PostTableViewCell"
+    var onLikeTap: (() -> Void)?
 
     private let authorLabel: UILabel = {
         let label = UILabel()
@@ -41,24 +42,40 @@ class PostTableViewCell: UITableViewCell {
 
     private let likesLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .systemFont(ofSize: 22, weight: .bold)
+        label.textColor = .systemRed
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let likesIconButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = .lightGray
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    private let viewsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    private let viewsLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private let viewsIconView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "eye.fill"))
+        imageView.tintColor = .darkGray
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
 
     // MARK: Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
+        setupActions()
     }
 
     required init?(coder: NSCoder) {
@@ -70,7 +87,9 @@ class PostTableViewCell: UITableViewCell {
         contentView.addSubview(authorLabel)
         contentView.addSubview(postImageView)
         contentView.addSubview(descriptionLabel)
+        contentView.addSubview(likesIconButton)
         contentView.addSubview(likesLabel)
+        contentView.addSubview(viewsIconView)
         contentView.addSubview(viewsLabel)
 
         NSLayoutConstraint.activate([
@@ -91,18 +110,31 @@ class PostTableViewCell: UITableViewCell {
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
             // Likes label
-            likesLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 16),
-            likesLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            likesLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            likesLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 24),
+            likesLabel.leadingAnchor.constraint(equalTo: likesIconButton.trailingAnchor, constant: 10),
+            likesLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16),
+
+            // Likes icon
+            likesIconButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            likesIconButton.centerYAnchor.constraint(equalTo: likesLabel.centerYAnchor),
+            likesIconButton.widthAnchor.constraint(equalToConstant: 28),
+            likesIconButton.heightAnchor.constraint(equalToConstant: 28),
 
             // Views label
-            viewsLabel.centerYAnchor.constraint(equalTo: likesLabel.centerYAnchor),
-            viewsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+            viewsLabel.topAnchor.constraint(equalTo: likesLabel.bottomAnchor, constant: 8),
+            viewsLabel.leadingAnchor.constraint(equalTo: viewsIconView.trailingAnchor, constant: 10),
+            viewsLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16),
+            viewsLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            // Views icon
+            viewsIconView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            viewsIconView.centerYAnchor.constraint(equalTo: viewsLabel.centerYAnchor),
+            viewsIconView.widthAnchor.constraint(equalToConstant: 20),
+            viewsIconView.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
 
     // MARK: Configure Cell
-    func configure(with post: Post) {
+    func configure(with post: Post, isFavorite: Bool) {
         authorLabel.text = post.author
         if let image = UIImage(named: post.image) {
             ImageProcessor().processImage(sourceImage: image, filter: .noir) { filteredImage in
@@ -114,5 +146,26 @@ class PostTableViewCell: UITableViewCell {
         descriptionLabel.text = post.description
         likesLabel.text = "Likes: \(post.likes)"
         viewsLabel.text = "Views: \(post.views)"
+        updateFavoriteUI(isFavorite: isFavorite)
+    }
+
+    private func setupActions() {
+        likesIconButton.addTarget(self, action: #selector(likeTapped), for: .touchUpInside)
+
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(likeTapped))
+        doubleTap.numberOfTapsRequired = 2
+        contentView.addGestureRecognizer(doubleTap)
+    }
+
+    @objc private func likeTapped() {
+        onLikeTap?()
+    }
+
+    private func updateFavoriteUI(isFavorite: Bool) {
+        likesIconButton.setImage(
+            UIImage(systemName: isFavorite ? "heart.fill" : "heart"),
+            for: .normal
+        )
+        likesIconButton.tintColor = isFavorite ? .systemRed : .lightGray
     }
 }

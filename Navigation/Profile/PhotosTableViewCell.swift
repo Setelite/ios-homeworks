@@ -27,7 +27,22 @@ final class PhotosTableViewCell: UITableViewCell {
         return imageView
     }()
     
-    private var imageViewsArray: [UIImageView] = []
+    private let scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.showsHorizontalScrollIndicator = false
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private let stackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.spacing = 8
+        view.alignment = .fill
+        view.distribution = .fill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -41,17 +56,8 @@ final class PhotosTableViewCell: UITableViewCell {
     private func setupUI() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(arrowImageView)
-        
-      
-        for _ in 0..<4 {
-            let iv = UIImageView()
-            iv.contentMode = .scaleAspectFill
-            iv.clipsToBounds = true
-            iv.layer.cornerRadius = 6
-            iv.translatesAutoresizingMaskIntoConstraints = false
-            contentView.addSubview(iv)
-            imageViewsArray.append(iv)
-        }
+        contentView.addSubview(scrollView)
+        scrollView.addSubview(stackView)
         
         NSLayoutConstraint.activate([
             // Заголовок
@@ -61,44 +67,40 @@ final class PhotosTableViewCell: UITableViewCell {
           
             arrowImageView.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             arrowImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            
-          
-            imageViewsArray[0].topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
-            imageViewsArray[0].leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            imageViewsArray[0].bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
+            scrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            scrollView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            scrollView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            scrollView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
+            scrollView.heightAnchor.constraint(equalToConstant: 90),
 
-            imageViewsArray[1].topAnchor.constraint(equalTo: imageViewsArray[0].topAnchor),
-            imageViewsArray[1].leadingAnchor.constraint(equalTo: imageViewsArray[0].trailingAnchor, constant: 8),
-
-            imageViewsArray[2].topAnchor.constraint(equalTo: imageViewsArray[0].topAnchor),
-            imageViewsArray[2].leadingAnchor.constraint(equalTo: imageViewsArray[1].trailingAnchor, constant: 8),
-
-            imageViewsArray[3].topAnchor.constraint(equalTo: imageViewsArray[0].topAnchor),
-            imageViewsArray[3].leadingAnchor.constraint(equalTo: imageViewsArray[2].trailingAnchor, constant: 8),
-            imageViewsArray[3].trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-
-            
-            imageViewsArray[0].widthAnchor.constraint(equalTo: imageViewsArray[1].widthAnchor),
-            imageViewsArray[1].widthAnchor.constraint(equalTo: imageViewsArray[2].widthAnchor),
-            imageViewsArray[2].widthAnchor.constraint(equalTo: imageViewsArray[3].widthAnchor),
-
-            // Соотношение 1:1
-            imageViewsArray[0].heightAnchor.constraint(equalTo: imageViewsArray[0].widthAnchor),
-            imageViewsArray[1].heightAnchor.constraint(equalTo: imageViewsArray[1].widthAnchor),
-            imageViewsArray[2].heightAnchor.constraint(equalTo: imageViewsArray[2].widthAnchor),
-            imageViewsArray[3].heightAnchor.constraint(equalTo: imageViewsArray[3].widthAnchor),
-
-            // высота
-            imageViewsArray[1].heightAnchor.constraint(equalTo: imageViewsArray[0].heightAnchor),
-            imageViewsArray[2].heightAnchor.constraint(equalTo: imageViewsArray[0].heightAnchor),
-            imageViewsArray[3].heightAnchor.constraint(equalTo: imageViewsArray[0].heightAnchor)
-
+            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            stackView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
         ])
     }
     
     func configure(with photos: [String]) {
-        for (index, imageName) in photos.prefix(4).enumerated() {
-            imageViewsArray[index].image = UIImage(named: imageName)
+        stackView.arrangedSubviews.forEach { view in
+            stackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+
+        for imageName in photos {
+            let imageView = UIImageView()
+            imageView.contentMode = .scaleAspectFill
+            imageView.clipsToBounds = true
+            imageView.layer.cornerRadius = 8
+            imageView.image = UIImage(named: imageName)
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+
+            NSLayoutConstraint.activate([
+                imageView.widthAnchor.constraint(equalToConstant: 90),
+                imageView.heightAnchor.constraint(equalToConstant: 90)
+            ])
+
+            stackView.addArrangedSubview(imageView)
         }
     }
 }

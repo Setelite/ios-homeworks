@@ -10,6 +10,7 @@ import UIKit
 final class PostCell: UITableViewCell {
 
     private let titleLabel = UILabel()
+    private let metaLabel = UILabel()
     private let likeImageView = UIImageView()
 
     var onLikeTap: (() -> Void)?
@@ -26,6 +27,7 @@ final class PostCell: UITableViewCell {
 
     func configure(post: Post, isFavorite: Bool) {
         titleLabel.text = post.description
+        metaLabel.text = "Likes: \(post.likes)   Views: \(post.views)"
         likeImageView.image = UIImage(
             systemName: isFavorite ? "heart.fill" : "heart"
         )
@@ -38,13 +40,19 @@ final class PostCell: UITableViewCell {
         titleLabel.numberOfLines = 0
         titleLabel.font = .systemFont(ofSize: 16)
 
+        metaLabel.numberOfLines = 1
+        metaLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        metaLabel.textColor = .secondaryLabel
+
         likeImageView.contentMode = .scaleAspectFit
         likeImageView.isUserInteractionEnabled = false
 
         contentView.addSubview(titleLabel)
+        contentView.addSubview(metaLabel)
         contentView.addSubview(likeImageView)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        metaLabel.translatesAutoresizingMaskIntoConstraints = false
         likeImageView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
@@ -58,7 +66,10 @@ final class PostCell: UITableViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: likeImageView.leadingAnchor, constant: -12),
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
+            metaLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            metaLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            metaLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            metaLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
     }
 

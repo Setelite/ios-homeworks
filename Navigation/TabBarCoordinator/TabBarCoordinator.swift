@@ -10,6 +10,7 @@ import UIKit
 final class TabBarCoordinator: Coordinator {
 
     let tabBarController = UITabBarController()
+    private var favoritesCoordinator: FavoritesCoordinator?
 
     func start() {
 
@@ -24,14 +25,10 @@ final class TabBarCoordinator: Coordinator {
             tag: 0
         )
 
-        // Favorites (без координатора — ок по ДЗ)
-        let favoritesVC = FavoritesViewController()
-        let favoritesNav = UINavigationController(rootViewController: favoritesVC)
-        favoritesNav.tabBarItem = UITabBarItem(
-            title: "Favorites",
-            image: UIImage(systemName: "star.fill"),
-            tag: 1
-        )
+        // Favorites
+        let favoritesCoordinator = FavoritesCoordinator()
+        favoritesCoordinator.start()
+        self.favoritesCoordinator = favoritesCoordinator
 
         // Profile
         let profileNav = UINavigationController()
@@ -48,10 +45,9 @@ final class TabBarCoordinator: Coordinator {
 
         tabBarController.viewControllers = [
             feedNav,
-            favoritesNav,
+            favoritesCoordinator.navigationController,
             profileNav
         ]
     }
 }
-
 

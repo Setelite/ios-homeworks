@@ -15,6 +15,7 @@ final class LogInViewController: UIViewController {
     // MARK: - UI
     private let scrollView = UIScrollView()
     private let contentView = UIView()
+    private let viewModel = LoginViewModel()
 
     private let logoImageView: UIImageView = {
         let iv = UIImageView(image: UIImage(named: "VKLogo"))
@@ -72,18 +73,16 @@ final class LogInViewController: UIViewController {
     private func tryLogin() {
         print("🔥 tryLogin called")
 
-        
-        guard
-            let email = loginField.text?.trimmingCharacters(in: .whitespaces),
-            let password = passwordField.text?.trimmingCharacters(in: .whitespaces),
-            !email.isEmpty,
-            !password.isEmpty
-        else {
-            showAlert("Ошибка", "Введите email и пароль")
-            return
-        }
+        viewModel.submit(email: loginField.text, password: passwordField.text)
 
-        loginDelegate?.checkCredentials(email: email, password: password)
+        switch viewModel.state {
+        case .idle:
+            return
+        case .errorEmpty:
+            showAlert("Ошибка", "Введите email и пароль")
+        case .ready(let email, let password):
+            loginDelegate?.checkCredentials(email: email, password: password)
+        }
     }
 
     // MARK: - UI Setup

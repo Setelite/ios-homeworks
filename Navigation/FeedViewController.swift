@@ -13,7 +13,7 @@ final class FeedViewController: UIViewController {
     var onOpenPost: ((Post) -> Void)?
 
     // MARK: - Model
-    private let model = FeedModel()
+    private let viewModel = FeedViewModel()
 
     // MARK: - UI
 
@@ -82,21 +82,23 @@ final class FeedViewController: UIViewController {
 
     // MARK: - Logic
     private func checkWord() {
-        guard let word = guessField.text,
-              !word.isEmpty else {
+        viewModel.check(word: guessField.text)
+
+        switch viewModel.state {
+        case .idle:
+            resultLabel.text = "Введите слово"
+            resultLabel.textColor = .black
+        case .emptyInput:
             resultLabel.text = "Введите слово!"
             resultLabel.textColor = .red
-            return
-        }
-
-        let isCorrect = model.check(word: word)
-
-        if isCorrect {
-            resultLabel.text = "Верно!"
-            resultLabel.textColor = .systemGreen
-        } else {
-            resultLabel.text = "Неверно!"
-            resultLabel.textColor = .systemRed
+        case .checked(let isCorrect):
+            if isCorrect {
+                resultLabel.text = "Верно!"
+                resultLabel.textColor = .systemGreen
+            } else {
+                resultLabel.text = "Неверно!"
+                resultLabel.textColor = .systemRed
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ final class SettingsViewController: UITableViewController {
 
     // MARK: - Sections
     enum Section: Int, CaseIterable {
+        case appearance
         case sorting
         case security
         case account
@@ -23,7 +24,7 @@ final class SettingsViewController: UITableViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Настройки"
+        title = L10n.tr("settings.title")
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
     }
 
@@ -45,11 +46,30 @@ final class SettingsViewController: UITableViewController {
     ) -> UITableViewCell {
 
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.accessoryType = .none
+        cell.accessoryView = nil
+        cell.selectionStyle = .default
+        cell.textLabel?.textAlignment = .natural
+        cell.textLabel?.textColor = StyleGuide.Colors.textPrimary
 
         switch Section(rawValue: indexPath.section)! {
+        case .appearance:
+            cell.textLabel?.text = L10n.tr("settings.theme")
+
+            let segmented = UISegmentedControl(items: [
+                L10n.tr("theme.system"),
+                L10n.tr("theme.light"),
+                L10n.tr("theme.dark")
+            ])
+            segmented.selectedSegmentIndex = SettingsStorage.shared.themeMode.rawValue
+            segmented.addTarget(self, action: #selector(themeChanged(_:)), for: .valueChanged)
+            cell.accessoryView = segmented
+            cell.selectionStyle = .none
+            cell.textLabel?.textAlignment = .natural
+            cell.textLabel?.textColor = StyleGuide.Colors.textPrimary
 
         case .sorting:
-            cell.textLabel?.text = "Сортировка A–Z"
+            cell.textLabel?.text = L10n.tr("settings.sort")
 
             let toggle = UISwitch()
             toggle.isOn = SettingsStorage.shared.isAscending
@@ -58,16 +78,14 @@ final class SettingsViewController: UITableViewController {
             cell.selectionStyle = .none
 
         case .security:
-            cell.textLabel?.text = "Поменять пароль"
+            cell.textLabel?.text = L10n.tr("settings.change_password")
             cell.accessoryType = .disclosureIndicator
-            cell.accessoryView = nil
             cell.selectionStyle = .default
 
         case .account:
-            cell.textLabel?.text = "Выйти из аккаунта"
-            cell.textLabel?.textColor = .systemRed
+            cell.textLabel?.text = L10n.tr("settings.logout")
+            cell.textLabel?.textColor = StyleGuide.Colors.danger
             cell.textLabel?.textAlignment = .center
-            cell.accessoryView = nil
             cell.selectionStyle = .default
         }
 
@@ -82,6 +100,8 @@ final class SettingsViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
 
         switch Section(rawValue: indexPath.section)! {
+        case .appearance:
+            break
 
         case .sorting:
             break
@@ -97,5 +117,10 @@ final class SettingsViewController: UITableViewController {
     // MARK: - Actions
     @objc private func sortChanged(_ sender: UISwitch) {
         SettingsStorage.shared.isAscending = sender.isOn
+    }
+
+    @objc private func themeChanged(_ sender: UISegmentedControl) {
+        guard let mode = AppThemeMode(rawValue: sender.selectedSegmentIndex) else { return }
+        SettingsStorage.shared.themeMode = mode
     }
 }

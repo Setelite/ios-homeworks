@@ -17,7 +17,7 @@ final class LoginInspector: LoginViewControllerDelegate {
     }
 
     func checkCredentials(email: String, password: String) {
-        print("🟢 checkCredentials:", email)
+        print("checkCredentials:", email)
         checkerService.checkCredentials(email: email, password: password) { [weak self] result in
             switch result {
             case .success:

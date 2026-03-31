@@ -19,8 +19,8 @@ final class PostDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .white
-        title = "Post"
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
+        title = L10n.tr("post.title")
 
         setupUI()
         updateUI()
@@ -30,11 +30,11 @@ final class PostDetailViewController: UIViewController {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
 
-        titleLabel.font = .boldSystemFont(ofSize: 20)
-        titleLabel.textColor = .black
+        titleLabel.font = StyleGuide.Fonts.title(20)
+        titleLabel.textColor = StyleGuide.Colors.textPrimary
 
-        descriptionLabel.font = .systemFont(ofSize: 16)
-        descriptionLabel.textColor = .darkGray
+        descriptionLabel.font = StyleGuide.Fonts.body()
+        descriptionLabel.textColor = StyleGuide.Colors.textSecondary
         descriptionLabel.numberOfLines = 0
 
         [imageView, titleLabel, descriptionLabel].forEach {

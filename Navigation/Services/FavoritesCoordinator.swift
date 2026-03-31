@@ -14,7 +14,7 @@ final class FavoritesCoordinator: Coordinator {
 
     func start() {
         let viewController = FavoritesViewController()
-        viewController.title = "Favorites"
+        viewController.title = L10n.tr("favorites.title")
         viewController.onOpenFiles = { [weak self] in
             self?.showFiles()
         }
@@ -24,7 +24,7 @@ final class FavoritesCoordinator: Coordinator {
 
         navigationController.viewControllers = [viewController]
         navigationController.tabBarItem = UITabBarItem(
-            title: "Favorites",
+            title: L10n.tr("favorites.title"),
             image: UIImage(systemName: "heart.fill"),
             tag: 1
         )

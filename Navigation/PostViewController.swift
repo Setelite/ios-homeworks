@@ -9,7 +9,7 @@ import UIKit
 
 final class PostViewController: UIViewController {
 
-    // ✅ ОБЯЗАТЕЛЬНО
+    
     let post: Post
     private let favorites = FavoritesRepository.shared
     private let contentStack = UIStackView()
@@ -17,7 +17,7 @@ final class PostViewController: UIViewController {
     private let likesLabel = UILabel()
     private let viewsLabel = UILabel()
 
-    // ✅ Инициализатор
+    //Инициализатор
     init(post: Post) {
         self.post = post
         super.init(nibName: nil, bundle: nil)
@@ -29,7 +29,7 @@ final class PostViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
         title = post.author
         setupUI()
         fillContent()
@@ -42,14 +42,14 @@ final class PostViewController: UIViewController {
         contentStack.translatesAutoresizingMaskIntoConstraints = false
 
         descriptionLabel.numberOfLines = 0
-        descriptionLabel.font = .systemFont(ofSize: 18, weight: .regular)
-        descriptionLabel.textColor = .label
+        descriptionLabel.font = StyleGuide.Fonts.body(18)
+        descriptionLabel.textColor = StyleGuide.Colors.textPrimary
 
-        likesLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        likesLabel.textColor = .systemRed
+        likesLabel.font = StyleGuide.Fonts.body(16, weight: .semibold)
+        likesLabel.textColor = StyleGuide.Colors.danger
 
-        viewsLabel.font = .systemFont(ofSize: 16, weight: .regular)
-        viewsLabel.textColor = .secondaryLabel
+        viewsLabel.font = StyleGuide.Fonts.body()
+        viewsLabel.textColor = StyleGuide.Colors.textSecondary
 
         contentStack.addArrangedSubview(descriptionLabel)
         contentStack.addArrangedSubview(likesLabel)
@@ -65,8 +65,8 @@ final class PostViewController: UIViewController {
 
     private func fillContent() {
         descriptionLabel.text = post.description
-        likesLabel.text = "Likes: \(post.likes)"
-        viewsLabel.text = "Views: \(post.views)"
+        likesLabel.text = L10n.format("post.likes", post.likes)
+        viewsLabel.text = L10n.format("post.views", post.views)
     }
 
     private func updateFavoriteState() {

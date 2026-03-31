@@ -1,0 +1,155 @@
+"tab.home" = "Главная";
+"tab.search" = "Поиск";
+"tab.chats" = "Чаты";
+"tab.clips" = "Клипы";
+"tab.menu" = "Меню";
+
+"common.ok" = "OK";
+"common.cancel" = "Отмена";
+"common.save" = "Сохранить";
+"common.delete" = "Удалить";
+"common.edit" = "Изменить";
+"common.apply" = "Применить";
+"common.retry" = "Повторить";
+"common.error" = "Ошибка";
+"common.you" = "Вы";
+
+"home.state.loading" = "Загружаем ленту...";
+"home.state.empty" = "Лента пока пустая";
+"home.post.new_title" = "Новая публикация";
+"home.post.new_message" = "Добавьте описание к посту";
+"home.post.description_placeholder" = "Описание поста";
+"home.post.publish" = "Опубликовать";
+"home.post.edit_title" = "Изменить публикацию";
+"home.post.sheet_title" = "Публикация";
+"home.post.edit_description" = "Изменить описание";
+"home.post.delete" = "Удалить пост";
+"home.error.save_photo" = "Не удалось сохранить фото публикации";
+"home.error.load_photo" = "Не удалось загрузить фото";
+
+"search.state.loading" = "Ищем публикации...";
+"search.state.empty" = "Ничего не найдено";
+
+"clips.item_format" = "Клип %d";
+"clips.state.loading" = "Подбираем клипы...";
+"clips.state.empty" = "Клипов пока нет";
+"clips.opening" = "Открытие клипа";
+"clips.remote" = "Онлайн";
+
+"chat.item.netology.name" = "Нетология";
+"chat.item.netology.message" = "Новый модуль по iOS уже доступен";
+"chat.item.team.message" = "Синк сегодня в 18:00";
+"chat.item.friends.name" = "Друзья";
+"chat.item.friends.message" = "Погнали в клипы";
+"chat.item.maxim.message" = "Проверь новый экран";
+"chat.time.yesterday" = "Вчера";
+"chats.state.loading" = "Загружаем чаты...";
+"chats.state.empty" = "Чатов пока нет";
+"chat.detail.placeholder" = "Здесь будет переписка";
+"chat.input.placeholder" = "Сообщение";
+"chat.send" = "Отправить";
+"chat.emoji.pick" = "Выберите эмодзи";
+"chat.message.default1" = "Привет! Как дела?";
+"chat.message.default2" = "Отлично, давай созвонимся вечером 👌";
+
+"menu.profile" = "Профиль";
+"menu.favorites" = "Избранное";
+"menu.files" = "Файлы";
+"menu.settings" = "Настройки";
+"menu.posts" = "Посты";
+"menu.info" = "Инфо";
+"menu.state.loading" = "Открываем разделы...";
+"menu.state.empty" = "Разделы отсутствуют";
+
+"settings.title" = "Настройки";
+"settings.theme" = "Тема";
+"settings.sort" = "Сортировка A–Z";
+"settings.change_password" = "Поменять пароль";
+"settings.logout" = "Выйти из аккаунта";
+"theme.system" = "Система";
+"theme.light" = "Светлая";
+"theme.dark" = "Тёмная";
+
+"password.enter" = "Введите пароль";
+"password.create" = "Создать пароль";
+"password.repeat" = "Повторите пароль";
+"password.error.too_short" = "Пароль должен быть минимум 4 символа";
+"password.error.mismatch" = "Пароли не совпадают";
+"password.error.wrong" = "Неверный пароль";
+"password.log.saved" = "Пароль сохранён в Keychain";
+"password.log.correct" = "Пароль верный";
+
+"login.email" = "Email";
+"login.password" = "Пароль";
+"login.submit" = "Войти";
+"login.error.empty_credentials" = "Введите email и пароль";
+
+"feed.title" = "Лента";
+"feed.enter_word" = "Введите слово";
+"feed.check" = "Проверить";
+"feed.enter_word_required" = "Введите слово!";
+"feed.correct" = "Верно!";
+"feed.incorrect" = "Неверно!";
+
+"favorites.title" = "Избранное";
+"favorites.search.title" = "Поиск по автору";
+"favorites.search.message" = "Введите имя автора";
+"favorites.search.placeholder" = "Автор";
+
+"documents.title" = "Документы";
+"documents.error.load" = "Ошибка загрузки файлов";
+"documents.error.delete" = "Ошибка удаления файла";
+
+"profile.title" = "Профиль";
+"profile.my_title" = "Мой профиль";
+"profile.friends" = "друзья";
+"profile.followers" = "подписчики";
+"profile.status.new_placeholder" = "Введите новый статус";
+"profile.status.update" = "Обновить статус";
+"profile.edit.title" = "Редактировать профиль";
+"profile.edit.name" = "Имя";
+"profile.edit.status" = "Статус";
+"profile.post.1" = "На работе тоже есть чем заняться!";
+"profile.post.2" = "Банка";
+"profile.post.3" = "Philipp Plein подарил)))!";
+"profile.post.4" = "Как обычно там , где нет никого)))";
+
+"photos.title" = "Фотографии";
+"photos.logs.show" = "Показать логи";
+"photos.logs.hide" = "Скрыть логи";
+"photos.logs.placeholder" = "Логи начнут появляться здесь...\n";
+"photos.error.no_images" = "Нет изображений — нечего обрабатывать";
+"photos.qos.done" = "Все QoS протестированы";
+"photos.qos.done_log" = "Все QoS протестированы";
+"photos.qos.start_log" = "Начинаем тест QoS: %@";
+"photos.qos.testing_status" = "Тестируем QoS: %@\nОжидайте...";
+"photos.qos.process_start_log" = "=== Начало обработки с QoS: %@ ===";
+"photos.qos.finish_log" = "Обработка %@ завершена";
+"photos.filter.chrome" = "Фильтр: Chrome";
+"photos.images_count" = "Изображений: %d";
+"photos.duration_seconds" = "Время: %@ секунд";
+"photos.success_ratio" = "Успешно: %d/%d";
+"photos.status.multiline" = "QoS: %@\nВремя: %@ сек\nИзображений: %d";
+"photos.status.log" = "Статус: %@";
+
+"post.title" = "Пост";
+"post.likes" = "Лайки: %d";
+"post.views" = "Просмотры: %d";
+"post.author.netology" = "Нетология";
+"post.author.vk_media" = "VK Media";
+"post.author.friends" = "Друзья";
+"post.author.design" = "Дизайн";
+"post.sample.first" = "Первый пост";
+"post.sample.second" = "Второй пост";
+"post.sample.third" = "Третий пост";
+
+"info.loading_film" = "Загрузка фильма...";
+"info.loading_planet" = "Загрузка планеты...";
+"info.show_alert" = "Показать алерт";
+"info.tatooine_period" = "Период обращения Татуина: %@";
+"info.alert.title" = "Инфо";
+"info.alert.message" = "Это тестовый алерт";
+
+"notifications.latest_updates.body" = "Посмотрите последние обновления";
+"notifications.latest_updates.open_action" = "Открыть обновления";
+"notifications.latest_updates.action_triggered_log" = "Сработало действие открытия обновлений";

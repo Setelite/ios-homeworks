@@ -9,11 +9,26 @@ import UIKit
 import StorageService
 
 final class ProfileViewController: UIViewController {
+    enum ScreenMode {
+        case profile
+        case myProfile
+
+        var title: String {
+            switch self {
+            case .profile:
+                return L10n.tr("profile.title")
+            case .myProfile:
+                return L10n.tr("profile.my_title")
+            }
+        }
+    }
 
     // MARK: - Properties
     private let viewModel: ProfileViewModel
+    private let screenMode: ScreenMode
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let favoritesRepository = FavoritesRepository.shared
+    private let headerView = ProfileHeaderView()
 
     enum Section: Int, CaseIterable {
         case photos
@@ -21,8 +36,12 @@ final class ProfileViewController: UIViewController {
     }
 
     // MARK: - Init
-    init(viewModel: ProfileViewModel) {
+    init(
+        viewModel: ProfileViewModel,
+        screenMode: ScreenMode = .profile
+    ) {
         self.viewModel = viewModel
+        self.screenMode = screenMode
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -39,8 +58,9 @@ final class ProfileViewController: UIViewController {
 
     // MARK: - UI
     private func setupUI() {
-        title = "Profile"
-        view.backgroundColor = .systemBackground
+        title = screenMode.title
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
+        navigationItem.largeTitleDisplayMode = .never
     }
 
     private func setupTableView() {
@@ -56,6 +76,8 @@ final class ProfileViewController: UIViewController {
 
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.backgroundColor = StyleGuide.Colors.backgroundPrimary
+        tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 700
 
@@ -72,17 +94,91 @@ final class ProfileViewController: UIViewController {
     }
 
     private func makeHeaderView() -> UIView {
-        let headerView = ProfileHeaderView()
-
         if let user = viewModel.user {
-            headerView.configure(with: user)
+            headerView.configure(
+                with: user,
+                friendsCount: viewModel.friendsCount,
+                followersCount: viewModel.followersCount
+            )
+        }
+        headerView.onProfileSettingsTap = { [weak self] in
+            self?.openProfileSettings()
+        }
+        headerView.onEditProfileTap = { [weak self] in
+            self?.openProfileEditor()
+        }
+        headerView.onAvatarTap = { [weak self] in
+            self?.openAvatarPicker()
         }
 
         // важный момент: tableHeaderView НЕ считает autoLayout
         let width = view.bounds.width
-        headerView.frame = CGRect(x: 0, y: 0, width: width, height: 240)
+        headerView.frame = CGRect(x: 0, y: 0, width: width, height: 310)
 
         return headerView
+    }
+
+    private func openProfileSettings() {
+        let vc = SettingsViewController()
+        vc.onChangePassword = { [weak self] in
+            guard let self else { return }
+            let passwordVC = PasswordViewController()
+            passwordVC.onSuccess = { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            }
+            self.navigationController?.pushViewController(passwordVC, animated: true)
+        }
+        vc.onLogout = { [weak self] in
+            self?.navigationController?.popToRootViewController(animated: true)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    private func openProfileEditor() {
+        guard let currentUser = viewModel.user else { return }
+
+        let alert = UIAlertController(
+            title: L10n.tr("profile.edit.title"),
+            message: nil,
+            preferredStyle: .alert
+        )
+        alert.addTextField { textField in
+            textField.placeholder = L10n.tr("profile.edit.name")
+            textField.text = currentUser.fullName
+        }
+        alert.addTextField { textField in
+            textField.placeholder = L10n.tr("profile.edit.status")
+            textField.text = currentUser.status
+        }
+
+        alert.addAction(UIAlertAction(title: L10n.tr("common.cancel"), style: .cancel))
+        alert.addAction(UIAlertAction(title: L10n.tr("common.save"), style: .default) { [weak self] _ in
+            guard
+                let self,
+                let fullName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                let status = alert.textFields?.last?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                !fullName.isEmpty,
+                !status.isEmpty
+            else { return }
+
+            self.viewModel.updateProfile(fullName: fullName, status: status)
+            if let user = self.viewModel.user {
+                self.headerView.configure(
+                    with: user,
+                    friendsCount: self.viewModel.friendsCount,
+                    followersCount: self.viewModel.followersCount
+                )
+            }
+        })
+
+        present(alert, animated: true)
+    }
+    
+    private func openAvatarPicker() {
+        let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary
+        picker.delegate = self
+        present(picker, animated: true)
     }
 }
 
@@ -168,12 +264,12 @@ extension ProfileViewController: UITableViewDelegate {
             let descriptionHeight = post.description.boundingRect(
                 with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
                 options: [.usesLineFragmentOrigin, .usesFontLeading],
-                attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .regular)],
+                attributes: [.font: StyleGuide.Fonts.caption(14, weight: .regular)],
                 context: nil
             ).height
 
-            // author + image(square) + paddings + description + likes/views block
-            return 16 + 24 + 12 + tableView.bounds.width + 16 + ceil(descriptionHeight) + 24 + 22 + 8 + 20 + 16
+            // author + image(square) + paddings + description + metrics row
+            return 16 + 24 + 12 + tableView.bounds.width + 16 + ceil(descriptionHeight) + 20 + 22 + 16
         }
     }
 
@@ -197,5 +293,38 @@ extension ProfileViewController: UITableViewDelegate {
             let vc = PostViewController(post: post)
             navigationController?.pushViewController(vc, animated: true)
         }
+    }
+}
+
+extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+    ) {
+        picker.dismiss(animated: true)
+        guard let image = info[.originalImage] as? UIImage else { return }
+        let normalized = image.squareCropped()
+
+        viewModel.updateAvatar(normalized)
+        CurrentUserService().updateAvatar(normalized)
+
+        if let user = viewModel.user {
+            headerView.configure(
+                with: user,
+                friendsCount: viewModel.friendsCount,
+                followersCount: viewModel.followersCount
+            )
+        }
+    }
+}
+
+private extension UIImage {
+    func squareCropped() -> UIImage {
+        let side = min(size.width, size.height)
+        let x = (size.width - side) / 2
+        let y = (size.height - side) / 2
+        let rect = CGRect(x: x, y: y, width: side, height: side)
+        guard let cg = cgImage?.cropping(to: rect) else { return self }
+        return UIImage(cgImage: cg, scale: scale, orientation: imageOrientation)
     }
 }

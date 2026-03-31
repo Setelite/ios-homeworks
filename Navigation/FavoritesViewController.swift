@@ -22,8 +22,8 @@ final class FavoritesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Favorites"
-        view.backgroundColor = .systemBackground
+        title = L10n.tr("favorites.title")
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
 
         setupTableView()
         setupNavigationBar()
@@ -89,16 +89,16 @@ final class FavoritesViewController: UIViewController {
 
     @objc private func searchByAuthor() {
         let alert = UIAlertController(
-            title: "Поиск по автору",
-            message: "Введите имя автора",
+            title: L10n.tr("favorites.search.title"),
+            message: L10n.tr("favorites.search.message"),
             preferredStyle: .alert
         )
 
         alert.addTextField { textField in
-            textField.placeholder = "Автор"
+            textField.placeholder = L10n.tr("favorites.search.placeholder")
         }
 
-        let apply = UIAlertAction(title: "Применить", style: .default) { _ in
+        let apply = UIAlertAction(title: L10n.tr("common.apply"), style: .default) { _ in
             let author = alert.textFields?.first?.text ?? ""
 
             if author.isEmpty {
@@ -112,7 +112,7 @@ final class FavoritesViewController: UIViewController {
             }
         }
 
-        let cancel = UIAlertAction(title: "Отмена", style: .cancel)
+        let cancel = UIAlertAction(title: L10n.tr("common.cancel"), style: .cancel)
 
         alert.addAction(apply)
         alert.addAction(cancel)
@@ -180,7 +180,7 @@ extension FavoritesViewController: UITableViewDelegate {
 
         let delete = UIContextualAction(
             style: .destructive,
-            title: "Удалить"
+            title: L10n.tr("common.delete")
         ) { [weak self] _, _, completion in
             guard let self else { return }
 

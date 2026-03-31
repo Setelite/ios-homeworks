@@ -36,7 +36,7 @@ final class PhotosViewController: UIViewController {
         layout.minimumInteritemSpacing = 8
         layout.scrollDirection = .vertical
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .white
+        cv.backgroundColor = StyleGuide.Colors.backgroundPrimary
         return cv
     }()
     
@@ -44,8 +44,8 @@ final class PhotosViewController: UIViewController {
         let label = UILabel()
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 14)
-        label.textColor = .darkGray
+        label.font = StyleGuide.Fonts.caption(14, weight: .regular)
+        label.textColor = StyleGuide.Colors.textSecondary
         return label
     }()
     
@@ -55,21 +55,22 @@ final class PhotosViewController: UIViewController {
         tv.isEditable = false
         tv.isScrollEnabled = true
         tv.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
-        tv.backgroundColor = .black.withAlphaComponent(0.9)
-        tv.textColor = .green
+        tv.backgroundColor = StyleGuide.Colors.backgroundSecondary
+        tv.textColor = StyleGuide.Colors.textSecondary
         tv.layer.cornerRadius = 8
         tv.layer.borderWidth = 1
-        tv.layer.borderColor = UIColor.gray.cgColor
+        tv.layer.borderColor = StyleGuide.Colors.borderStrong.cgColor
         tv.isHidden = true
         return tv
     }()
     
     private let showLogsButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Показать логи", for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.white, for: .normal)
+        button.setTitle(L10n.tr("photos.logs.show"), for: .normal)
+        button.backgroundColor = StyleGuide.Colors.accent
+        button.setTitleColor(StyleGuide.Colors.inverseText, for: .normal)
         button.layer.cornerRadius = 8
+        button.titleLabel?.font = StyleGuide.Fonts.caption(13, weight: .semibold)
         return button
     }()
     
@@ -77,7 +78,8 @@ final class PhotosViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        title = L10n.tr("photos.title")
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
         setupUI()
         
         if !photos.isEmpty {
@@ -118,7 +120,7 @@ final class PhotosViewController: UIViewController {
         addLog("Loaded source images: \(sourceImages.count)")
         
         guard !sourceImages.isEmpty else {
-            addLog("Нет изображений — нечего обрабатывать")
+            addLog(L10n.tr("photos.error.no_images"))
             return
         }
         
@@ -128,16 +130,16 @@ final class PhotosViewController: UIViewController {
     // MARK: - Sequential QoS testing
     private func startNextQoSTest() {
         guard currentQoSIndex < qosLevels.count else {
-            addLog("✅ Все QoS протестированы")
-            updateStatus("Все QoS протестированы")
+            addLog(L10n.tr("photos.qos.done_log"))
+            updateStatus(L10n.tr("photos.qos.done"))
             return
         }
         
         let qos = qosLevels[currentQoSIndex]
         let qosName = qosDescription(qos)
         
-        addLog("🚀 Начинаем тест QoS: \(qosName)")
-        updateStatus("Тестируем QoS: \(qosName)\nОжидайте...")
+        addLog(L10n.format("photos.qos.start_log", qosName))
+        updateStatus(L10n.format("photos.qos.testing_status", qosName))
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.processImagesWithQoS(qos)
@@ -160,9 +162,9 @@ final class PhotosViewController: UIViewController {
         let start = CFAbsoluteTimeGetCurrent()
         let qosName = qosDescription(qos)
         
-        addLog("=== Начало обработки с QoS: \(qosName) ===")
-        addLog("Фильтр: Chrome")
-        addLog("Изображений: \(sourceImages.count)")
+        addLog(L10n.format("photos.qos.process_start_log", qosName))
+        addLog(L10n.tr("photos.filter.chrome"))
+        addLog(L10n.format("photos.images_count", sourceImages.count))
         
         processor.processImagesOnThread(
             sourceImages: sourceImages,
@@ -186,17 +188,15 @@ final class PhotosViewController: UIViewController {
                 
                 let imageCount = uiImages.count
                 
-                self.addLog("Обработка \(qosName) завершена")
-                self.addLog("Время: \(String(format: "%.3f", duration)) секунд")
-                self.addLog("Изображений: \(imageCount)")
-                self.addLog("Успешно: \(imageCount)/\(self.sourceImages.count)")
+                self.addLog(L10n.format("photos.qos.finish_log", qosName))
+                self.addLog(L10n.format("photos.duration_seconds", String(format: "%.3f", duration)))
+                self.addLog(L10n.format("photos.images_count", imageCount))
+                self.addLog(L10n.format("photos.success_ratio", imageCount, self.sourceImages.count))
                 
                 // Обновляем статус
-                self.updateStatus("""
-                QoS: \(qosName)
-                Время: \(String(format: "%.3f", duration)) сек
-                Изображений: \(imageCount)
-                """)
+                self.updateStatus(
+                    L10n.format("photos.status.multiline", qosName, String(format: "%.3f", duration), imageCount)
+                )
                 
                 self.currentQoSIndex += 1
                 
@@ -255,14 +255,14 @@ final class PhotosViewController: UIViewController {
         collectionView.delegate = self
         
         // Начальное сообщение
-        logTextView.text = "Логи начнут появляться здесь...\n"
+        logTextView.text = L10n.tr("photos.logs.placeholder")
     }
     
     @objc private func toggleLogs() {
         UIView.animate(withDuration: 0.3) {
             self.logTextView.isHidden = !self.logTextView.isHidden
             self.showLogsButton.setTitle(
-                self.logTextView.isHidden ? "Показать логи" : "Скрыть логи",
+                self.logTextView.isHidden ? L10n.tr("photos.logs.show") : L10n.tr("photos.logs.hide"),
                 for: .normal
             )
         }
@@ -270,7 +270,7 @@ final class PhotosViewController: UIViewController {
     
     private func updateStatus(_ text: String) {
         statusLabel.text = text
-        addLog("Статус: \(text)")
+        addLog(L10n.format("photos.status.log", text))
     }
 }
 

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Базовая проверка учетных данных
 final class CheckerService: CheckerServiceProtocol {
 
     func checkCredentials(
@@ -34,4 +35,3 @@ final class CheckerService: CheckerServiceProtocol {
         completion(.success(()))
     }
 }
-

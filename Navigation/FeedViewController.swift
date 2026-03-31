@@ -19,9 +19,9 @@ final class FeedViewController: UIViewController {
 
     private let guessField: UITextField = {
         let field = UITextField()
-        field.placeholder = "Введите слово"
-        field.backgroundColor = .systemGray6
-        field.layer.borderColor = UIColor.systemGray3.cgColor
+        field.placeholder = L10n.tr("feed.enter_word")
+        field.backgroundColor = StyleGuide.Colors.backgroundSecondary
+        field.layer.borderColor = StyleGuide.Colors.borderStrong.cgColor
         field.layer.borderWidth = 1
         field.layer.cornerRadius = 10
         field.setLeftPaddingPoints(10)
@@ -30,18 +30,18 @@ final class FeedViewController: UIViewController {
     }()
 
     private lazy var checkGuessButton = CustomButton(
-        title: "Проверить",
-        backgroundColor: .systemBlue
+        title: L10n.tr("feed.check"),
+        backgroundColor: StyleGuide.Colors.accent
     ) { [weak self] in
         self?.checkWord()
     }
 
     private let resultLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .medium)
+        label.font = StyleGuide.Fonts.body(18, weight: .medium)
         label.textAlignment = .center
-        label.textColor = .black
-        label.text = "Введите слово"
+        label.textColor = StyleGuide.Colors.textPrimary
+        label.text = L10n.tr("feed.enter_word")
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -50,8 +50,8 @@ final class FeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Feed"
-        view.backgroundColor = .white
+        title = L10n.tr("feed.title")
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
 
         setupUI()
     }
@@ -86,18 +86,18 @@ final class FeedViewController: UIViewController {
 
         switch viewModel.state {
         case .idle:
-            resultLabel.text = "Введите слово"
-            resultLabel.textColor = .black
+            resultLabel.text = L10n.tr("feed.enter_word")
+            resultLabel.textColor = StyleGuide.Colors.textPrimary
         case .emptyInput:
-            resultLabel.text = "Введите слово!"
-            resultLabel.textColor = .red
+            resultLabel.text = L10n.tr("feed.enter_word_required")
+            resultLabel.textColor = StyleGuide.Colors.danger
         case .checked(let isCorrect):
             if isCorrect {
-                resultLabel.text = "Верно!"
-                resultLabel.textColor = .systemGreen
+                resultLabel.text = L10n.tr("feed.correct")
+                resultLabel.textColor = StyleGuide.Colors.success
             } else {
-                resultLabel.text = "Неверно!"
-                resultLabel.textColor = .systemRed
+                resultLabel.text = L10n.tr("feed.incorrect")
+                resultLabel.textColor = StyleGuide.Colors.danger
             }
         }
     }

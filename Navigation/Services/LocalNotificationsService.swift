@@ -1,13 +1,18 @@
 import Foundation
 import UserNotifications
 
-final class LocalNotificationsService: NSObject, UNUserNotificationCenterDelegate {
+protocol LocalNotificationsServiceProtocol {
+    func registerForLatestUpdatesIfPossible()
+}
+
+/// Обрабатывает разрешения на локальные уведомления
+final class LocalNotificationsService: NSObject, UNUserNotificationCenterDelegate, LocalNotificationsServiceProtocol {
     private let center = UNUserNotificationCenter.current()
     private let latestUpdatesRequestId = "latestUpdatesDaily19"
     private let updatesCategoryId = "updates"
     private let openUpdatesActionId = "openUpdates"
 
-    func registeForLatestUpdatesIfPossible() {
+    func registerForLatestUpdatesIfPossible() {
         registerUpdatesCategory()
 
         center.requestAuthorization(options: [.sound, .badge, .alert]) { [weak self] granted, _ in
@@ -16,7 +21,7 @@ final class LocalNotificationsService: NSObject, UNUserNotificationCenterDelegat
             self.center.delegate = self
 
             let content = UNMutableNotificationContent()
-            content.body = "Посмотрите последние обновления"
+            content.body = L10n.tr("notifications.latest_updates.body")
             content.sound = .default
             content.badge = 1
             content.categoryIdentifier = self.updatesCategoryId
@@ -42,7 +47,7 @@ final class LocalNotificationsService: NSObject, UNUserNotificationCenterDelegat
     func registerUpdatesCategory() {
         let action = UNNotificationAction(
             identifier: openUpdatesActionId,
-            title: "Открыть обновления",
+            title: L10n.tr("notifications.latest_updates.open_action"),
             options: [.foreground]
         )
 
@@ -65,9 +70,8 @@ extension LocalNotificationsService {
     ) {
         if response.notification.request.content.categoryIdentifier == updatesCategoryId,
            response.actionIdentifier == openUpdatesActionId {
-            // Здесь можно выполнить любое действие для "обновлений".
-            // Например, зафиксировать событие или подготовить данные.
-            print("Open updates action triggered")
+            // Entry point for the "updates" action. Here we keep lightweight analytics/logging only.
+            print(L10n.tr("notifications.latest_updates.action_triggered_log"))
         }
 
         completionHandler()

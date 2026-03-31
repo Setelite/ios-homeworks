@@ -6,9 +6,11 @@
 //
 import UIKit
 
+/// Арр Координатор
 final class AppCoordinator: Coordinator {
 
     private let window: UIWindow
+    private var tabBarCoordinator: TabBarCoordinator?
 
     init(window: UIWindow) {
         self.window = window
@@ -17,6 +19,7 @@ final class AppCoordinator: Coordinator {
     func start() {
         let tabBarCoordinator = TabBarCoordinator()
         tabBarCoordinator.start()
+        self.tabBarCoordinator = tabBarCoordinator
 
         window.rootViewController = tabBarCoordinator.tabBarController
         window.makeKeyAndVisible()

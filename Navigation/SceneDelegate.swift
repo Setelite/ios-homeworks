@@ -24,6 +24,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let appCoordinator = AppCoordinator(window: window)
         self.appCoordinator = appCoordinator
         appCoordinator.start()
+        applyTheme()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeDidChange),
+            name: .appThemeDidChange,
+            object: nil
+        )
     }
 
     /* 🔥 ВАЖНО ДЛЯ ЗАЧЁТА
@@ -45,5 +53,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         ]
 
         return configurations.randomElement()!
+    }
+
+    @objc private func handleThemeDidChange() {
+        applyTheme()
+    }
+
+    private func applyTheme() {
+        let style: UIUserInterfaceStyle
+        switch SettingsStorage.shared.themeMode {
+        case .system:
+            style = .unspecified
+        case .light:
+            style = .light
+        case .dark:
+            style = .dark
+        }
+        window?.overrideUserInterfaceStyle = style
     }
 }

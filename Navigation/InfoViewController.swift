@@ -7,7 +7,7 @@
 
 import UIKit
 
-class InfoViewController: UIViewController {
+final class InfoViewController: UIViewController {
 
     private let filmTitleLabel = UILabel()
     private let planetPeriodLabel = UILabel()
@@ -17,7 +17,7 @@ class InfoViewController: UIViewController {
 
         print("INFO VC LOADED")
 
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = StyleGuide.Colors.backgroundSecondary
 
         setupLabels()
         setupButton()
@@ -32,15 +32,17 @@ class InfoViewController: UIViewController {
         filmTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         planetPeriodLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        filmTitleLabel.font = .systemFont(ofSize: 20, weight: .bold)
+        filmTitleLabel.font = StyleGuide.Fonts.title(20)
+        filmTitleLabel.textColor = StyleGuide.Colors.textPrimary
         filmTitleLabel.textAlignment = .center
         filmTitleLabel.numberOfLines = 0
-        filmTitleLabel.text = "Loading film..."
+        filmTitleLabel.text = L10n.tr("info.loading_film")
 
-        planetPeriodLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        planetPeriodLabel.font = StyleGuide.Fonts.body(16, weight: .medium)
+        planetPeriodLabel.textColor = StyleGuide.Colors.textSecondary
         planetPeriodLabel.textAlignment = .center
         planetPeriodLabel.numberOfLines = 0
-        planetPeriodLabel.text = "Loading planet..."
+        planetPeriodLabel.text = L10n.tr("info.loading_planet")
 
         view.addSubview(filmTitleLabel)
         view.addSubview(planetPeriodLabel)
@@ -60,7 +62,7 @@ class InfoViewController: UIViewController {
 
     private func setupButton() {
         let button = UIButton(type: .system)
-        button.setTitle("Show Alert", for: .normal)
+        button.setTitle(L10n.tr("info.show_alert"), for: .normal)
         button.addTarget(self, action: #selector(showAlert), for: .touchUpInside)
 
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -117,8 +119,7 @@ class InfoViewController: UIViewController {
                 let planet = try JSONDecoder().decode(Planet.self, from: data)
 
                 DispatchQueue.main.async {
-                    self.planetPeriodLabel.text =
-                    "Orbital period of Tatooine: \(planet.orbitalPeriod)"
+                    self.planetPeriodLabel.text = L10n.format("info.tatooine_period", planet.orbitalPeriod)
                 }
             } catch {
                 print("Planet decoding error:", error.localizedDescription)
@@ -130,13 +131,13 @@ class InfoViewController: UIViewController {
 
     @objc private func showAlert() {
         let alert = UIAlertController(
-            title: "Info",
-            message: "This is an alert",
+            title: L10n.tr("info.alert.title"),
+            message: L10n.tr("info.alert.message"),
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: L10n.tr("common.ok"), style: .default))
+        alert.addAction(UIAlertAction(title: L10n.tr("common.cancel"), style: .cancel))
 
         present(alert, animated: true)
     }

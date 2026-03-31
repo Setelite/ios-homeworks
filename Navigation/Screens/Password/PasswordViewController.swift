@@ -16,7 +16,7 @@ final class PasswordViewController: UIViewController {
 
     private let passwordTextField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Введите пароль"
+        tf.placeholder = L10n.tr("password.enter")
         tf.isSecureTextEntry = true
         tf.borderStyle = .roundedRect
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -25,15 +25,15 @@ final class PasswordViewController: UIViewController {
 
     private let actionButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        btn.titleLabel?.font = StyleGuide.Fonts.title(18)
         btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
 
     private let errorLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemRed
-        label.font = .systemFont(ofSize: 14)
+        label.textColor = StyleGuide.Colors.danger
+        label.font = StyleGuide.Fonts.caption(14, weight: .regular)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.isHidden = true
@@ -49,7 +49,7 @@ final class PasswordViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
         setupLayout()
         setupInitialState()
         actionButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
@@ -60,10 +60,10 @@ final class PasswordViewController: UIViewController {
     private func setupInitialState() {
         if let savedPassword = KeychainService.shared.getPassword() {
             state = .enter(saved: savedPassword)
-            actionButton.setTitle("Введите пароль", for: .normal)
+            actionButton.setTitle(L10n.tr("password.enter"), for: .normal)
         } else {
             state = .create
-            actionButton.setTitle("Создать пароль", for: .normal)
+            actionButton.setTitle(L10n.tr("password.create"), for: .normal)
         }
     }
 
@@ -73,7 +73,7 @@ final class PasswordViewController: UIViewController {
         errorLabel.isHidden = true
 
         guard let text = passwordTextField.text, text.count >= 4 else {
-            showError("Пароль должен быть минимум 4 символа")
+            showError(L10n.tr("password.error.too_short"))
             return
         }
 
@@ -82,24 +82,24 @@ final class PasswordViewController: UIViewController {
         case .create:
             state = .repeatPassword(first: text)
             passwordTextField.text = ""
-            actionButton.setTitle("Повторите пароль", for: .normal)
+            actionButton.setTitle(L10n.tr("password.repeat"), for: .normal)
 
         case .repeatPassword(let first):
             if first == text {
                 KeychainService.shared.savePassword(text)
-                print("✅ Пароль сохранён в Keychain")
-                onSuccess?() // ✅ ПЕРЕХОД ДАЛЬШЕ
+                print(L10n.tr("password.log.saved"))
+                onSuccess?() // ПЕРЕХОД ДАЛЬШЕ
             } else {
-                showError("Пароли не совпадают")
+                showError(L10n.tr("password.error.mismatch"))
                 resetToCreate()
             }
 
         case .enter(let saved):
             if text == saved {
-                print("🔓 Пароль верный")
-                onSuccess?() // ✅ ПЕРЕХОД ДАЛЬШЕ
+                print(L10n.tr("password.log.correct"))
+                onSuccess?() // ПЕРЕХОД ДАЛЬШЕ
             } else {
-                showError("Неверный пароль")
+                showError(L10n.tr("password.error.wrong"))
                 passwordTextField.text = ""
             }
         case .none:
@@ -112,7 +112,7 @@ final class PasswordViewController: UIViewController {
     private func resetToCreate() {
         state = .create
         passwordTextField.text = ""
-        actionButton.setTitle("Создать пароль", for: .normal)
+        actionButton.setTitle(L10n.tr("password.create"), for: .normal)
     }
 
     private func showError(_ message: String) {

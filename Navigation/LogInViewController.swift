@@ -25,11 +25,11 @@ final class LogInViewController: UIViewController {
 
     private let loginField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Email"
-        tf.backgroundColor = .systemGray6
+        tf.placeholder = L10n.tr("login.email")
+        tf.backgroundColor = StyleGuide.Colors.backgroundSecondary
         tf.layer.cornerRadius = 10
         tf.layer.borderWidth = 0.5
-        tf.layer.borderColor = UIColor.systemGray3.cgColor
+        tf.layer.borderColor = StyleGuide.Colors.borderStrong.cgColor
         tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 40))
         tf.leftViewMode = .always
         return tf
@@ -37,20 +37,20 @@ final class LogInViewController: UIViewController {
 
     private let passwordField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Password"
+        tf.placeholder = L10n.tr("login.password")
         tf.isSecureTextEntry = true
-        tf.backgroundColor = .systemGray6
+        tf.backgroundColor = StyleGuide.Colors.backgroundSecondary
         tf.layer.cornerRadius = 10
         tf.layer.borderWidth = 0.5
-        tf.layer.borderColor = UIColor.systemGray3.cgColor
+        tf.layer.borderColor = StyleGuide.Colors.borderStrong.cgColor
         tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 40))
         tf.leftViewMode = .always
         return tf
     }()
 
     private lazy var loginButton = CustomButton(
-        title: "Войти",
-        backgroundColor: .systemBlue
+        title: L10n.tr("login.submit"),
+        backgroundColor: StyleGuide.Colors.accent
     ) { [weak self] in
         self?.tryLogin()
     }
@@ -59,7 +59,7 @@ final class LogInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .white
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
         setupUI()
         setupKeyboardObservers()
     }
@@ -79,7 +79,7 @@ final class LogInViewController: UIViewController {
         case .idle:
             return
         case .errorEmpty:
-            showAlert("Ошибка", "Введите email и пароль")
+            showAlert(L10n.tr("common.error"), L10n.tr("login.error.empty_credentials"))
         case .ready(let email, let password):
             loginDelegate?.checkCredentials(email: email, password: password)
         }
@@ -168,7 +168,7 @@ final class LogInViewController: UIViewController {
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: L10n.tr("common.ok"), style: .default))
         present(alert, animated: true)
     }
 }

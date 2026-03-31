@@ -1,0 +1,155 @@
+"tab.home" = "Home";
+"tab.search" = "Search";
+"tab.chats" = "Chats";
+"tab.clips" = "Clips";
+"tab.menu" = "Menu";
+
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.edit" = "Edit";
+"common.apply" = "Apply";
+"common.retry" = "Retry";
+"common.error" = "Error";
+"common.you" = "You";
+
+"home.state.loading" = "Loading feed...";
+"home.state.empty" = "Feed is empty";
+"home.post.new_title" = "New post";
+"home.post.new_message" = "Add a description";
+"home.post.description_placeholder" = "Post description";
+"home.post.publish" = "Publish";
+"home.post.edit_title" = "Edit post";
+"home.post.sheet_title" = "Post";
+"home.post.edit_description" = "Edit description";
+"home.post.delete" = "Delete post";
+"home.error.save_photo" = "Failed to save post photo";
+"home.error.load_photo" = "Failed to load photo";
+
+"search.state.loading" = "Searching posts...";
+"search.state.empty" = "Nothing found";
+
+"clips.item_format" = "Clip %d";
+"clips.state.loading" = "Selecting clips...";
+"clips.state.empty" = "No clips yet";
+"clips.opening" = "Opening clip";
+"clips.remote" = "Online";
+
+"chat.item.netology.name" = "Netology";
+"chat.item.netology.message" = "New iOS module is already available";
+"chat.item.team.message" = "Sync today at 18:00";
+"chat.item.friends.name" = "Friends";
+"chat.item.friends.message" = "Let's go to clips";
+"chat.item.maxim.message" = "Check the new screen";
+"chat.time.yesterday" = "Yesterday";
+"chats.state.loading" = "Loading chats...";
+"chats.state.empty" = "No chats yet";
+"chat.detail.placeholder" = "Chat will appear here";
+"chat.input.placeholder" = "Message";
+"chat.send" = "Send";
+"chat.emoji.pick" = "Pick an emoji";
+"chat.message.default1" = "Hi! How are you?";
+"chat.message.default2" = "Great, let's call in the evening 👌";
+
+"menu.profile" = "Profile";
+"menu.favorites" = "Favorites";
+"menu.files" = "Files";
+"menu.settings" = "Settings";
+"menu.posts" = "Posts";
+"menu.info" = "Info";
+"menu.state.loading" = "Opening sections...";
+"menu.state.empty" = "No sections available";
+
+"settings.title" = "Settings";
+"settings.theme" = "Theme";
+"settings.sort" = "Sort A–Z";
+"settings.change_password" = "Change password";
+"settings.logout" = "Log out";
+"theme.system" = "System";
+"theme.light" = "Light";
+"theme.dark" = "Dark";
+
+"password.enter" = "Enter password";
+"password.create" = "Create password";
+"password.repeat" = "Repeat password";
+"password.error.too_short" = "Password must be at least 4 characters";
+"password.error.mismatch" = "Passwords do not match";
+"password.error.wrong" = "Wrong password";
+"password.log.saved" = "Password was saved to Keychain";
+"password.log.correct" = "Password is correct";
+
+"login.email" = "Email";
+"login.password" = "Password";
+"login.submit" = "Sign in";
+"login.error.empty_credentials" = "Enter email and password";
+
+"feed.title" = "Feed";
+"feed.enter_word" = "Enter word";
+"feed.check" = "Check";
+"feed.enter_word_required" = "Enter a word!";
+"feed.correct" = "Correct!";
+"feed.incorrect" = "Incorrect!";
+
+"favorites.title" = "Favorites";
+"favorites.search.title" = "Search by author";
+"favorites.search.message" = "Enter author name";
+"favorites.search.placeholder" = "Author";
+
+"documents.title" = "Documents";
+"documents.error.load" = "Failed to load files";
+"documents.error.delete" = "Failed to delete file";
+
+"profile.title" = "Profile";
+"profile.my_title" = "My Profile";
+"profile.friends" = "friends";
+"profile.followers" = "followers";
+"profile.status.new_placeholder" = "Enter new status";
+"profile.status.update" = "Update status";
+"profile.edit.title" = "Edit profile";
+"profile.edit.name" = "Name";
+"profile.edit.status" = "Status";
+"profile.post.1" = "There is always work to do!";
+"profile.post.2" = "Gym time";
+"profile.post.3" = "Gift from Philipp Plein!";
+"profile.post.4" = "As usual where nobody is around";
+
+"photos.title" = "Photos";
+"photos.logs.show" = "Show logs";
+"photos.logs.hide" = "Hide logs";
+"photos.logs.placeholder" = "Logs will appear here...\n";
+"photos.error.no_images" = "No images to process";
+"photos.qos.done" = "All QoS levels are tested";
+"photos.qos.done_log" = "All QoS levels are tested";
+"photos.qos.start_log" = "Starting QoS test: %@";
+"photos.qos.testing_status" = "Testing QoS: %@\nPlease wait...";
+"photos.qos.process_start_log" = "=== Processing started with QoS: %@ ===";
+"photos.qos.finish_log" = "Processing %@ completed";
+"photos.filter.chrome" = "Filter: Chrome";
+"photos.images_count" = "Images: %d";
+"photos.duration_seconds" = "Duration: %@ sec";
+"photos.success_ratio" = "Success: %d/%d";
+"photos.status.multiline" = "QoS: %@\nDuration: %@ sec\nImages: %d";
+"photos.status.log" = "Status: %@";
+
+"post.title" = "Post";
+"post.likes" = "Likes: %d";
+"post.views" = "Views: %d";
+"post.author.netology" = "Netology";
+"post.author.vk_media" = "VK Media";
+"post.author.friends" = "Friends";
+"post.author.design" = "Design";
+"post.sample.first" = "First post";
+"post.sample.second" = "Second post";
+"post.sample.third" = "Third post";
+
+"info.loading_film" = "Loading film...";
+"info.loading_planet" = "Loading planet...";
+"info.show_alert" = "Show alert";
+"info.tatooine_period" = "Orbital period of Tatooine: %@";
+"info.alert.title" = "Info";
+"info.alert.message" = "This is a test alert";
+
+"notifications.latest_updates.body" = "Check the latest updates";
+"notifications.latest_updates.open_action" = "Open updates";
+"notifications.latest_updates.action_triggered_log" = "Open updates action triggered";

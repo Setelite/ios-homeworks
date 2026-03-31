@@ -18,8 +18,8 @@ final class PostsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Posts"
-        view.backgroundColor = .systemBackground
+        title = L10n.tr("menu.posts")
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
         setupTableView()
     }
 

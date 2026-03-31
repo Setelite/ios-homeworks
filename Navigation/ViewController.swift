@@ -18,8 +18,8 @@ final class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Documents"
-        view.backgroundColor = .systemBackground
+        title = L10n.tr("documents.title")
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
 
         setupTableView()
         loadFiles()
@@ -52,7 +52,8 @@ private extension ViewController {
             )
             tableView.reloadData()
         } catch {
-            print("Ошибка загрузки файлов:", error)
+            let errorTitle = L10n.tr("documents.error.load")
+            print("\(errorTitle): \(error)")
         }
     }
 }
@@ -95,7 +96,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
 
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { [weak self] _, _, completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: L10n.tr("common.delete")) { [weak self] _, _, completion in
             guard let self = self else { return }
 
             let fileURL = self.items[indexPath.row]
@@ -106,7 +107,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 tableView.deleteRows(at: [indexPath], with: .automatic)
                 completion(true)
             } catch {
-                print("Ошибка удаления файла:", error)
+                let errorTitle = L10n.tr("documents.error.delete")
+                print("\(errorTitle): \(error)")
                 completion(false)
             }
         }

@@ -13,16 +13,16 @@ final class PhotosTableViewCell: UITableViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Photos"
-        label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-        label.textColor = .black
+        label.text = L10n.tr("photos.title")
+        label.font = StyleGuide.Fonts.title(20)
+        label.textColor = StyleGuide.Colors.textPrimary
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let arrowImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(systemName: "arrow.right"))
-        imageView.tintColor = .black
+        let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
+        imageView.tintColor = StyleGuide.Colors.textSecondary
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -54,6 +54,8 @@ final class PhotosTableViewCell: UITableViewCell {
     }
     
     private func setupUI() {
+        backgroundColor = StyleGuide.Colors.backgroundPrimary
+        contentView.backgroundColor = StyleGuide.Colors.backgroundPrimary
         contentView.addSubview(titleLabel)
         contentView.addSubview(arrowImageView)
         contentView.addSubview(scrollView)

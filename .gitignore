@@ -12,3 +12,5 @@ DerivedData/
 *.xcuserstate
 *.xcworkspace
 
+BuildData/
+BuildData/

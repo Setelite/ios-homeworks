@@ -27,22 +27,24 @@ final class PostCell: UITableViewCell {
 
     func configure(post: Post, isFavorite: Bool) {
         titleLabel.text = post.description
-        metaLabel.text = "Likes: \(post.likes)   Views: \(post.views)"
+        let likesText = L10n.format("post.likes", post.likes)
+        let viewsText = L10n.format("post.views", post.views)
+        metaLabel.text = "\(likesText)   \(viewsText)"
         likeImageView.image = UIImage(
             systemName: isFavorite ? "heart.fill" : "heart"
         )
-        likeImageView.tintColor = isFavorite ? .systemRed : .lightGray
+        likeImageView.tintColor = isFavorite ? StyleGuide.Colors.danger : StyleGuide.Colors.muted
     }
 
     private func setupUI() {
         selectionStyle = .none
 
         titleLabel.numberOfLines = 0
-        titleLabel.font = .systemFont(ofSize: 16)
+        titleLabel.font = StyleGuide.Fonts.body()
 
         metaLabel.numberOfLines = 1
-        metaLabel.font = .systemFont(ofSize: 13, weight: .medium)
-        metaLabel.textColor = .secondaryLabel
+        metaLabel.font = StyleGuide.Fonts.caption()
+        metaLabel.textColor = StyleGuide.Colors.textSecondary
 
         likeImageView.contentMode = .scaleAspectFit
         likeImageView.isUserInteractionEnabled = false
@@ -56,7 +58,7 @@ final class PostCell: UITableViewCell {
         likeImageView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            // ❤️ ЛАЙК — ФИКСИРОВАННЫЙ РАЗМЕР
+            //  ЛАЙК — ФИКСИРОВАННЫЙ РАЗМЕР
             likeImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             likeImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             likeImageView.widthAnchor.constraint(equalToConstant: 24),

@@ -12,8 +12,8 @@ final class CustomButton: UIButton {
     private var action: (() -> Void)?
 
     init(title: String,
-         titleColor: UIColor = .white,
-         backgroundColor: UIColor = .systemBlue,
+         titleColor: UIColor = StyleGuide.Colors.inverseText,
+         backgroundColor: UIColor = StyleGuide.Colors.accent,
          cornerRadius: CGFloat = 12,
          action: (() -> Void)? = nil) {
 
@@ -23,6 +23,7 @@ final class CustomButton: UIButton {
 
         setTitle(title, for: .normal)
         setTitleColor(titleColor, for: .normal)
+        titleLabel?.font = StyleGuide.Fonts.body(15, weight: .semibold)
         self.backgroundColor = backgroundColor
         layer.cornerRadius = cornerRadius
 

@@ -26,8 +26,8 @@ final class FilesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Файлы"
-        view.backgroundColor = .systemBackground
+        title = L10n.tr("menu.files")
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
 
         setupTableView()
         sortFiles()
@@ -58,7 +58,7 @@ final class FilesViewController: UIViewController {
 
     // MARK: - Sorting
     private func sortFiles() {
-        let isAscending = UserDefaults.standard.bool(forKey: "sortAscending")
+        let isAscending = SettingsStorage.shared.isAscending
 
         files.sort {
             isAscending ? $0.localizedCompare($1) == .orderedAscending

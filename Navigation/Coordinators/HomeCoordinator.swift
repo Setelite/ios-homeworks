@@ -13,12 +13,19 @@ final class HomeCoordinator: Coordinator {
     }
 
     func start() {
-        let vc = HomeViewController()
-        let user = userService.getUser(login: "Wowgorno")
+        let feedViewModel = SocialFeedViewModel(
+            service: FeedService(),
+            cacheRepository: CoreDataFeedCacheRepository()
+        )
+        let vc = HomeViewController(remoteFeedViewModel: feedViewModel)
+        let login = FirebaseSessionStorage.shared.user?.email ?? "Wowgorno"
+        let user = userService.getUser(login: login)
         vc.configureAvatar(user?.avatar)
         vc.onOpenProfile = { [weak self] in
             guard let self else { return }
-            let vm = ProfileViewModel(user: user)
+            let profileLogin = FirebaseSessionStorage.shared.user?.email ?? "Wowgorno"
+            let currentUser = self.userService.getUser(login: profileLogin)
+            let vm = ProfileViewModel(user: currentUser)
             let profileVC = ProfileViewController(
                 viewModel: vm,
                 screenMode: .myProfile

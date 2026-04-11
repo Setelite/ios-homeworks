@@ -1,7 +1,9 @@
 "tab.home" = "Главная";
 "tab.search" = "Поиск";
+"tab.sports" = "Спорт";
 "tab.chats" = "Чаты";
 "tab.clips" = "Клипы";
+"tab.music" = "Музыка";
 "tab.menu" = "Меню";
 
 "common.ok" = "OK";
@@ -20,6 +22,8 @@
 "home.post.new_message" = "Добавьте описание к посту";
 "home.post.description_placeholder" = "Описание поста";
 "home.post.publish" = "Опубликовать";
+"home.post.create_source" = "Новая публикация";
+"home.post.from_gallery" = "Из галереи";
 "home.post.edit_title" = "Изменить публикацию";
 "home.post.sheet_title" = "Публикация";
 "home.post.edit_description" = "Изменить описание";
@@ -29,6 +33,25 @@
 
 "search.state.loading" = "Ищем публикации...";
 "search.state.empty" = "Ничего не найдено";
+"search.state.error" = "Не удалось загрузить данные";
+"search.segment.celebrities" = "Знаменитости";
+"search.segment.music" = "Музыка";
+"search.placeholder" = "Поиск";
+"search.player.play" = "Слушать";
+"search.player.pause" = "Пауза";
+"search.celebrity.no_portfolio" = "Портфолио пока пусто";
+"search.track.preview" = "Превью";
+
+"music.title" = "Моя музыка";
+"music.profile.entry" = "Моя музыка";
+"music.profile.subtitle" = "50 популярных треков 2026";
+"music.state.loading" = "Загружаем треки...";
+"music.state.empty" = "Треки не найдены";
+"music.state.error" = "Не удалось загрузить музыку";
+"music.control.play" = "Плей";
+"music.control.pause" = "Пауза";
+"music.control.stop" = "Стоп";
+
 
 "clips.item_format" = "Клип %d";
 "clips.state.loading" = "Подбираем клипы...";
@@ -47,12 +70,14 @@
 "chats.state.empty" = "Чатов пока нет";
 "chat.detail.placeholder" = "Здесь будет переписка";
 "chat.input.placeholder" = "Сообщение";
+"chat.placeholder.no_messages" = "Пока нет сообщений";
 "chat.send" = "Отправить";
 "chat.emoji.pick" = "Выберите эмодзи";
 "chat.message.default1" = "Привет! Как дела?";
 "chat.message.default2" = "Отлично, давай созвонимся вечером 👌";
 
 "menu.profile" = "Профиль";
+"menu.sports" = "Спорт рядом";
 "menu.favorites" = "Избранное";
 "menu.files" = "Файлы";
 "menu.settings" = "Настройки";
@@ -60,6 +85,26 @@
 "menu.info" = "Инфо";
 "menu.state.loading" = "Открываем разделы...";
 "menu.state.empty" = "Разделы отсутствуют";
+
+"sports.title" = "Спорт рядом";
+"sports.subtitle" = "Люди рядом, карта активности и челленджи в одном экране.";
+"sports.section.map" = "Карта тренировок";
+"sports.section.nearby" = "Люди рядом";
+"sports.section.challenges" = "Челленджи";
+"sports.section.leaderboard" = "Рейтинг";
+"sports.state.loading" = "Загружаем спортивную активность...";
+"sports.nearby.distance" = "%.1f км рядом";
+"sports.nearby.empty" = "По выбранным фильтрам никого рядом не найдено";
+"sports.filter.sport.all" = "Все";
+"sports.filter.sport.running" = "Бег";
+"sports.filter.sport.cycling" = "Вело";
+"sports.filter.sport.yoga" = "Йога";
+"sports.filter.radius.1" = "1 км";
+"sports.filter.radius.5" = "5 км";
+"sports.filter.radius.15" = "15 км";
+"sports.challenge.participants" = "Участников: %d";
+"sports.leaderboard.points" = "%d очков";
+"sports.leaderboard.streak" = "Серия: %d дн.";
 
 "settings.title" = "Настройки";
 "settings.theme" = "Тема";
@@ -82,7 +127,10 @@
 "login.email" = "Email";
 "login.password" = "Пароль";
 "login.submit" = "Войти";
+"login.register" = "Зарегистрироваться";
 "login.error.empty_credentials" = "Введите email и пароль";
+"login.error.signup_failed" = "Не удалось зарегистрироваться";
+"login.error.internal" = "Внутренняя ошибка входа. Перезапустите приложение.";
 
 "feed.title" = "Лента";
 "feed.enter_word" = "Введите слово";
@@ -106,6 +154,7 @@
 "profile.followers" = "подписчики";
 "profile.status.new_placeholder" = "Введите новый статус";
 "profile.status.update" = "Обновить статус";
+"profile.status.firebase" = "Авторизован через Firebase";
 "profile.edit.title" = "Редактировать профиль";
 "profile.edit.name" = "Имя";
 "profile.edit.status" = "Статус";
@@ -153,3 +202,27 @@
 "notifications.latest_updates.body" = "Посмотрите последние обновления";
 "notifications.latest_updates.open_action" = "Открыть обновления";
 "notifications.latest_updates.action_triggered_log" = "Сработало действие открытия обновлений";
+
+"menu.nutrition" = "Питание";
+"food.title" = "Сканер питания";
+"food.camera.hint" = "Наведите камеру на штрих-код";
+"food.camera.denied" = "Доступ к камере отключен. Введите штрих-код вручную.";
+"food.camera.unavailable" = "Камера недоступна на устройстве";
+"food.barcode.placeholder" = "Введите штрих-код";
+"food.barcode.search" = "Найти продукт";
+"food.state.loading" = "Ищем продукт...";
+"food.diary.add" = "Добавить в дневник";
+"food.diary.summary" = "За день: %.0f ккал • Б %.1f • Ж %.1f • У %.1f";
+"food.diary.entry" = "%.0f ккал • Б %.1f • Ж %.1f • У %.1f";
+"food.unknown_product" = "Неизвестный продукт";
+"food.ingredients.title" = "Состав";
+"food.ingredients.empty" = "Состав не указан";
+"food.allergens.title" = "Аллергены";
+"food.allergens.none" = "Не указаны";
+"food.error.diary_load" = "Не удалось загрузить дневник питания";
+"food.error.diary_save" = "Не удалось сохранить запись в дневник";
+"api.error.bad_url" = "Ошибка запроса";
+"api.error.network" = "Нет соединения с сетью";
+"api.error.invalid_response" = "Сервис временно недоступен";
+"api.error.not_found" = "Продукт не найден";
+"api.error.decoding" = "Ошибка обработки данных";

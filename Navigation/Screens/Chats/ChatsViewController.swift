@@ -3,18 +3,33 @@ import UIKit
 final class ChatsViewController: UIViewController {
     private struct ChatItem {
         let name: String
+        let roomID: String
         let lastMessage: String
         let time: String
     }
 
     private let tableView = UITableView()
     private let stateView = ScreenStateView()
-    private var chats: [ChatItem] = [
-        ChatItem(name: L10n.tr("chat.item.netology.name"), lastMessage: L10n.tr("chat.item.netology.message"), time: "12:40"),
-        ChatItem(name: "iOS Team", lastMessage: L10n.tr("chat.item.team.message"), time: "11:05"),
-        ChatItem(name: L10n.tr("chat.item.friends.name"), lastMessage: L10n.tr("chat.item.friends.message"), time: L10n.tr("chat.time.yesterday")),
-        ChatItem(name: "Maxim", lastMessage: L10n.tr("chat.item.maxim.message"), time: L10n.tr("chat.time.yesterday"))
+    private let chatService: FirebaseChatServiceProtocol
+
+    private let peers: [String] = [
+        L10n.tr("chat.item.netology.name"),
+        "iOS Team",
+        L10n.tr("chat.item.friends.name"),
+        "Maxim"
     ]
+
+    private var chats: [ChatItem] = []
+
+    init(chatService: FirebaseChatServiceProtocol = FirebaseChatService()) {
+        self.chatService = chatService
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,12 +72,35 @@ final class ChatsViewController: UIViewController {
 
     private func loadData() {
         stateView.apply(.loading(L10n.tr("chats.state.loading")))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if self.chats.isEmpty {
-                self.stateView.apply(.empty(L10n.tr("chats.state.empty")))
-            } else {
-                self.tableView.reloadData()
-                self.stateView.apply(.content)
+
+        guard let token = FirebaseSessionStorage.shared.token,
+              let currentUser = FirebaseSessionStorage.shared.user?.email else {
+            chats = peers.map {
+                ChatItem(
+                    name: $0,
+                    roomID: FirebaseChatService.roomID(currentUser: "guest", peer: $0),
+                    lastMessage: L10n.tr("chat.placeholder.no_messages"),
+                    time: ""
+                )
+            }
+            tableView.reloadData()
+            stateView.apply(.content)
+            return
+        }
+
+        Task {
+            let dialogs = (try? await chatService.fetchDialogs(currentUser: currentUser, peers: peers, token: token)) ?? []
+            await MainActor.run {
+                self.chats = dialogs.map {
+                    ChatItem(name: $0.peerName, roomID: $0.roomID, lastMessage: $0.lastMessage, time: $0.time)
+                }
+
+                if self.chats.isEmpty {
+                    self.stateView.apply(.empty(L10n.tr("chats.state.empty")))
+                } else {
+                    self.tableView.reloadData()
+                    self.stateView.apply(.content)
+                }
             }
         }
     }
@@ -89,7 +127,9 @@ extension ChatsViewController: UITableViewDataSource {
 extension ChatsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = ChatDetailViewController(title: chats[indexPath.row].name)
+        guard chats.indices.contains(indexPath.row) else { return }
+        let item = chats[indexPath.row]
+        let vc = ChatDetailViewController(title: item.name, roomID: item.roomID)
         navigationController?.pushViewController(vc, animated: true)
     }
 }

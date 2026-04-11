@@ -41,6 +41,7 @@ final class ProfileViewModel {
             avatar: user.avatar,
             status: status
         )
+        CurrentUserService().updateProfile(fullName: fullName, status: status)
         onDataChanged?()
     }
     
@@ -52,6 +53,7 @@ final class ProfileViewModel {
             avatar: image,
             status: user.status
         )
+        CurrentUserService().updateAvatar(image)
         onDataChanged?()
     }
 }

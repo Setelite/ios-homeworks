@@ -9,11 +9,13 @@ final class CurrentUserServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         UserDefaults.standard.removeObject(forKey: avatarKey)
+        FirebaseSessionStorage.shared.clear()
         removeAvatarFileIfNeeded()
     }
 
     override func tearDown() {
         UserDefaults.standard.removeObject(forKey: avatarKey)
+        FirebaseSessionStorage.shared.clear()
         removeAvatarFileIfNeeded()
         super.tearDown()
     }

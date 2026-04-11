@@ -11,7 +11,8 @@ final class HomeViewController: UIViewController {
         let id: String
         let author: String
         let description: String
-        let imageFileName: String
+        let imageFileName: String?
+        let remoteImageURL: String?
         let likes: Int
         let views: Int
         let comments: Int
@@ -24,7 +25,9 @@ final class HomeViewController: UIViewController {
     }
 
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let refreshControl = UIRefreshControl()
     private let favoritesRepository = FavoritesRepository.shared
+    private let remoteFeedViewModel: SocialFeedViewModel
     private let cloudPostsService: CloudPostsService? = {
         guard FeatureFlags.cloudSyncEnabled else { return nil }
         return CloudPostsService(container: .default())
@@ -32,18 +35,35 @@ final class HomeViewController: UIViewController {
     private let stateView = ScreenStateView()
     private var avatarImage: UIImage?
     private var pendingImageForPost: UIImage?
+    private var isSkeletonLoading = true
+    private var remoteFeed: [HomeFeedPost] = []
+    private var customFeed: [HomeFeedPost] = []
     var onOpenProfile: (() -> Void)?
 
     private var stories: [StoryItem] = [
         StoryItem(id: UUID().uuidString, name: "Maxim", imageName: "my_photo"),
         StoryItem(id: UUID().uuidString, name: "Dady", imageName: "hulk"),
         StoryItem(id: UUID().uuidString, name: "Plein", imageName: "pp"),
-        StoryItem(id: UUID().uuidString, name: "Swift", imageName: "post1"),
-        StoryItem(id: UUID().uuidString, name: "Netology", imageName: "post2")
+        StoryItem(id: UUID().uuidString, name: "Swift", imageName: "skala"),
+        StoryItem(id: UUID().uuidString, name: "Netology", imageName: "avatar")
     ]
 
-    // мои публикации в ленте
+    // Итоговая лента = пользовательские публикации + посты из API.
     private var feed: [HomeFeedPost] = []
+
+    init(
+        remoteFeedViewModel: SocialFeedViewModel = SocialFeedViewModel(
+            service: FeedService(),
+            cacheRepository: CoreDataFeedCacheRepository()
+        )
+    ) {
+        self.remoteFeedViewModel = remoteFeedViewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,15 +74,17 @@ final class HomeViewController: UIViewController {
         setupStoriesHeader()
         setupStateView()
         stateView.onRetry = { [weak self] in
-            self?.loadRemotePosts()
+            self?.requestRemoteFeed(isRefresh: false)
         }
+        bindRemoteFeedViewModel()
+        loadCustomPublications()
 
-        loadRemotePosts()
+        requestRemoteFeed(isRefresh: false)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let user = CurrentUserService().getUser(login: "Wowgorno")
+        let user = currentUser()
         configureAvatar(user?.avatar)
     }
 
@@ -75,6 +97,8 @@ final class HomeViewController: UIViewController {
         tableView.estimatedRowHeight = 440
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(HomePostCell.self, forCellReuseIdentifier: HomePostCell.identifier)
+        refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
+        tableView.refreshControl = refreshControl
 
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
@@ -120,12 +144,13 @@ final class HomeViewController: UIViewController {
 
     private func setupNavigationBar() {
         applyAvatarImage()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "plus.square.on.square"),
+        let addButton = UIBarButtonItem(
+            image: UIImage(systemName: "plus"),
             style: .plain,
             target: self,
             action: #selector(addPostTapped)
         )
+        navigationItem.rightBarButtonItems = [addButton]
     }
 
     func configureAvatar(_ image: UIImage?) {
@@ -167,14 +192,87 @@ final class HomeViewController: UIViewController {
     }
 
     private func loadContent() {
-        stateView.apply(.loading(L10n.tr("home.state.loading")))
+        if feed.isEmpty {
+            stateView.apply(.empty(L10n.tr("home.state.empty")))
+        } else {
+            tableView.reloadData()
+            stateView.apply(.content)
+        }
+    }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            if self.feed.isEmpty {
-                self.stateView.apply(.empty(L10n.tr("home.state.empty")))
+    private func bindRemoteFeedViewModel() {
+        remoteFeedViewModel.onStateChange = { [weak self] state in
+            self?.renderRemoteState(state)
+        }
+    }
+
+    private func renderRemoteState(_ state: SocialFeedViewModel.State) {
+        switch state {
+        case .idle:
+            break
+        case .loading:
+            isSkeletonLoading = true
+            stateView.apply(.loading(L10n.tr("home.state.loading")))
+            tableView.reloadData()
+        case .content(let posts):
+            isSkeletonLoading = false
+            remoteFeed = posts.map(mapRemotePost)
+            rebuildFeed()
+            refreshControl.endRefreshing()
+        case .error(let message):
+            isSkeletonLoading = false
+            refreshControl.endRefreshing()
+
+            if feed.isEmpty {
+                stateView.apply(.error(message))
             } else {
-                self.tableView.reloadData()
-                self.stateView.apply(.content)
+                stateView.apply(.content)
+            }
+            tableView.reloadData()
+        }
+    }
+
+    private func mapRemotePost(_ post: SocialFeedPost) -> HomeFeedPost {
+        let generated = Post(
+            id: "remote_\(post.id)",
+            author: post.username,
+            description: post.caption,
+            image: "my_photo",
+            likes: Int.random(in: 25...600),
+            views: Int.random(in: 300...7000)
+        )
+
+        return HomeFeedPost(
+            post: generated,
+            avatarURL: post.avatarURL,
+            publishedAt: post.date,
+            localImage: nil,
+            localImageFileName: nil,
+            remoteImageURL: post.photoURL,
+            likeCount: generated.likes,
+            commentCount: Int.random(in: 0...70),
+            shareCount: Int.random(in: 0...30),
+            isLiked: false,
+            isCustomPublication: false
+        )
+    }
+
+    private func rebuildFeed() {
+        feed = customFeed + remoteFeed
+        loadContent()
+    }
+
+    @objc private func refreshPulled() {
+        requestRemoteFeed(isRefresh: true)
+    }
+
+    private func requestRemoteFeed(isRefresh: Bool) {
+        Task { [weak self] in
+            guard let self else { return }
+            if isRefresh {
+                await remoteFeedViewModel.refresh()
+            } else {
+                await remoteFeedViewModel.loadInitial()
             }
         }
     }
@@ -186,6 +284,7 @@ final class HomeViewController: UIViewController {
         feed[index].likeCount += feed[index].isLiked ? 1 : -1
 
         if feed[index].isCustomPublication {
+            syncCustomFeedItem(feed[index])
             persistCustomPublications()
             syncCustomPostToCloud(feed[index])
         } else {
@@ -203,6 +302,7 @@ final class HomeViewController: UIViewController {
         guard feed.indices.contains(index) else { return }
         feed[index].commentCount += 1
         if feed[index].isCustomPublication {
+            syncCustomFeedItem(feed[index])
             persistCustomPublications()
             syncCustomPostToCloud(feed[index])
         }
@@ -220,6 +320,7 @@ final class HomeViewController: UIViewController {
         present(activity, animated: true)
 
         if feed[index].isCustomPublication {
+            syncCustomFeedItem(feed[index])
             persistCustomPublications()
             syncCustomPostToCloud(feed[index])
         }
@@ -232,10 +333,22 @@ final class HomeViewController: UIViewController {
     }
 
     @objc private func addPostTapped() {
-        let picker = UIImagePickerController()
-        picker.sourceType = .photoLibrary
-        picker.delegate = self
-        present(picker, animated: true)
+        let sheet = UIAlertController(
+            title: L10n.tr("home.post.create_source"),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        sheet.addAction(UIAlertAction(title: L10n.tr("home.post.from_gallery"), style: .default) { [weak self] _ in
+            let picker = UIImagePickerController()
+            picker.sourceType = .photoLibrary
+            picker.delegate = self
+            self?.present(picker, animated: true)
+        })
+        sheet.addAction(UIAlertAction(title: L10n.tr("common.cancel"), style: .cancel))
+        if let popover = sheet.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItems?.first
+        }
+        present(sheet, animated: true)
     }
 
     @objc private func profileTapped() {
@@ -244,13 +357,23 @@ final class HomeViewController: UIViewController {
             return
         }
 
-        let user = CurrentUserService().getUser(login: "Wowgorno")
+        let user = currentUser()
         let vm = ProfileViewModel(user: user)
         let profileVC = ProfileViewController(
             viewModel: vm,
             screenMode: .myProfile
         )
         navigationController?.pushViewController(profileVC, animated: true)
+    }
+
+    private func currentUser() -> User? {
+        let userService = CurrentUserService()
+        if let email = FirebaseSessionStorage.shared.user?.email,
+           let user = userService.getUser(login: email) {
+            return user
+        }
+
+        return userService.getUser(login: "Wowgorno")
     }
 
     private func presentCreatePostDialog() {
@@ -287,16 +410,19 @@ final class HomeViewController: UIViewController {
         let newPost = Post(
             author: L10n.tr("common.you"),
             description: text,
-            image: "post1",
+            image: "my_photo",
             likes: 0,
             views: 0
         )
 
-        feed.insert(
+        customFeed.insert(
             HomeFeedPost(
                 post: newPost,
+                avatarURL: nil,
+                publishedAt: Date(),
                 localImage: image,
                 localImageFileName: imageFileName,
+                remoteImageURL: nil,
                 likeCount: 0,
                 commentCount: 0,
                 shareCount: 0,
@@ -308,20 +434,21 @@ final class HomeViewController: UIViewController {
         enforceCustomPostLimit(maxCount: 3)
 
         persistCustomPublications()
-        syncCustomPostToCloud(feed[0])
-        stateView.apply(.content)
-        tableView.reloadData()
+        if let newest = customFeed.first {
+            syncCustomPostToCloud(newest)
+        }
+        rebuildFeed()
     }
 
     private func persistCustomPublications() {
         // сохранения сообщений в ленте автора
-        let stored: [StoredPublication] = Array(feed.compactMap { item in
-            guard item.isCustomPublication, let fileName = item.localImageFileName else { return nil }
+        let stored: [StoredPublication] = Array(customFeed.compactMap { item in
             return StoredPublication(
                 id: item.post.id,
                 author: item.post.author,
                 description: item.post.description,
-                imageFileName: fileName,
+                imageFileName: item.localImageFileName,
+                remoteImageURL: item.remoteImageURL?.absoluteString,
                 likes: item.likeCount,
                 views: item.post.views,
                 comments: item.commentCount,
@@ -341,19 +468,22 @@ final class HomeViewController: UIViewController {
         else { return }
 
         let loaded: [HomeFeedPost] = stored.compactMap { item in
-            guard let image = loadImageFromDocuments(named: item.imageFileName) else { return nil }
+            let image = item.imageFileName.flatMap { loadImageFromDocuments(named: $0) }
             let post = Post(
                 id: item.id,
                 author: item.author,
                 description: item.description,
-                image: "post1",
+                image: "my_photo",
                 likes: item.likes,
                 views: item.views
             )
             return HomeFeedPost(
                 post: post,
+                avatarURL: nil,
+                publishedAt: Date(),
                 localImage: image,
                 localImageFileName: item.imageFileName,
+                remoteImageURL: item.remoteImageURL.flatMap { URL(string: $0) },
                 likeCount: item.likes,
                 commentCount: item.comments,
                 shareCount: item.shares,
@@ -362,79 +492,24 @@ final class HomeViewController: UIViewController {
             )
         }
 
-        feed = Array(loaded.prefix(3))
+        customFeed = Array(loaded.prefix(3))
+        rebuildFeed()
     }
 
     private func enforceCustomPostLimit(maxCount: Int) {
         guard maxCount > 0 else { return }
 
-        let customIndexes = feed.enumerated()
-            .filter { $0.element.isCustomPublication }
-            .map(\.offset)
+        guard customFeed.count > maxCount else { return }
 
-        guard customIndexes.count > maxCount else { return }
-
-        let toRemove = customIndexes.dropFirst(maxCount).sorted(by: >)
-        for index in toRemove {
-            if let fileName = feed[index].localImageFileName {
+        let toRemove = customFeed.dropFirst(maxCount)
+        toRemove.forEach { item in
+            if let fileName = item.localImageFileName {
                 removeImageFromDocuments(named: fileName)
             }
-            removeCustomPostFromCloud(postId: feed[index].post.id)
-            feed.remove(at: index)
+            removeCustomPostFromCloud(postId: item.post.id)
         }
-    }
-
-    private func loadRemotePosts() {
-        guard let cloudPostsService else {
-            loadCustomPublications()
-            loadContent()
-            return
-        }
-
-        stateView.apply(.loading(L10n.tr("home.state.loading")))
-
-        cloudPostsService.fetchPosts { [weak self] result in
-            guard let self else { return }
-
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let posts):
-                    if posts.isEmpty {
-                        self.loadCustomPublications()
-                        self.uploadCachedPostsToCloudIfNeeded()
-                    } else {
-                        self.feed = posts.map { self.makeHomeFeedPost(from: $0) }
-                    }
-                    self.loadContent()
-
-                case .failure:
-                    self.loadCustomPublications()
-                    self.loadContent()
-                }
-            }
-        }
-    }
-
-    private func makeHomeFeedPost(from cloudPost: CloudPost) -> HomeFeedPost {
-        let post = Post(
-            id: cloudPost.id,
-            author: cloudPost.author,
-            description: cloudPost.description,
-            image: "post1",
-            likes: cloudPost.likes,
-            views: cloudPost.views
-        )
-
-        return HomeFeedPost(
-            post: post,
-            localImage: cloudPost.image,
-            localImageFileName: nil,
-            likeCount: cloudPost.likes,
-            commentCount: cloudPost.comments,
-            shareCount: cloudPost.shares,
-            isLiked: cloudPost.isLiked,
-            isCustomPublication: true
-        )
+        customFeed = Array(customFeed.prefix(maxCount))
+        rebuildFeed()
     }
 
     private func makeCloudPost(from item: HomeFeedPost) -> CloudPost {
@@ -459,10 +534,6 @@ final class HomeViewController: UIViewController {
 
     private func removeCustomPostFromCloud(postId: String) {
         cloudPostsService?.delete(postId: postId, completion: nil)
-    }
-
-    private func uploadCachedPostsToCloudIfNeeded() {
-        feed.filter { $0.isCustomPublication }.forEach { syncCustomPostToCloud($0) }
     }
 
     private func documentsDirectory() -> URL? {
@@ -493,6 +564,12 @@ final class HomeViewController: UIViewController {
         guard let directory = documentsDirectory() else { return }
         let fileURL = directory.appendingPathComponent(fileName)
         try? FileManager.default.removeItem(at: fileURL)
+    }
+
+    private func syncCustomFeedItem(_ updated: HomeFeedPost) {
+        guard let index = customFeed.firstIndex(where: { $0.post.id == updated.post.id }) else { return }
+        customFeed[index] = updated
+        rebuildFeed()
     }
 
     private func presentEditPostDialog(postId: String) {
@@ -528,6 +605,7 @@ final class HomeViewController: UIViewController {
                 views: oldPost.views
             )
             self.feed[updateIndex].post = updatedPost
+            self.syncCustomFeedItem(self.feed[updateIndex])
             self.persistCustomPublications()
             self.syncCustomPostToCloud(self.feed[updateIndex])
             self.tableView.reloadRows(at: [IndexPath(row: updateIndex, section: 0)], with: .automatic)
@@ -536,8 +614,7 @@ final class HomeViewController: UIViewController {
     }
 
     private func deleteCustomPost(postId: String) {
-        guard let deleteIndex = feed.firstIndex(where: { $0.post.id == postId }) else { return }
-        let item = feed[deleteIndex]
+        guard let item = feed.first(where: { $0.post.id == postId }) else { return }
         guard item.isCustomPublication else { return }
 
         if let fileName = item.localImageFileName {
@@ -545,21 +622,15 @@ final class HomeViewController: UIViewController {
         }
 
         removeCustomPostFromCloud(postId: item.post.id)
-        feed.remove(at: deleteIndex)
+        customFeed.removeAll { $0.post.id == item.post.id }
         persistCustomPublications()
-
-        if feed.isEmpty {
-            tableView.reloadData()
-            stateView.apply(.empty(L10n.tr("home.state.empty")))
-        } else {
-            tableView.deleteRows(at: [IndexPath(row: deleteIndex, section: 0)], with: .automatic)
-        }
+        rebuildFeed()
     }
 }
 
 extension HomeViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        feed.count
+        isSkeletonLoading ? 4 : feed.count
     }
 
     func tableView(
@@ -570,6 +641,14 @@ extension HomeViewController: UITableViewDataSource {
             withIdentifier: HomePostCell.identifier,
             for: indexPath
         ) as! HomePostCell
+
+        if isSkeletonLoading {
+            cell.configureSkeleton()
+            cell.onLikeTap = nil
+            cell.onCommentTap = nil
+            cell.onShareTap = nil
+            return cell
+        }
 
         cell.configure(with: feed[indexPath.row])
         cell.onLikeTap = { [weak self] in
@@ -588,6 +667,7 @@ extension HomeViewController: UITableViewDataSource {
 
 extension HomeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard !isSkeletonLoading else { return }
         tableView.deselectRow(at: indexPath, animated: true)
         guard feed.indices.contains(indexPath.row) else { return }
         let item = feed[indexPath.row]

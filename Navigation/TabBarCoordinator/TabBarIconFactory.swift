@@ -2,9 +2,9 @@ import UIKit
 
 enum VKTabIcon {
     case home
-    case search
+    case sports
     case chats
-    case clips
+    case music
     case menu
 }
 
@@ -22,12 +22,12 @@ enum TabBarIconFactory {
             switch type {
             case .home:
                 drawHome(in: cg, size: size, filled: selected)
-            case .search:
-                drawSearch(in: cg, size: size, filled: selected)
+            case .sports:
+                drawSports(in: cg, size: size, filled: selected)
             case .chats:
                 drawChats(in: cg, size: size, filled: selected)
-            case .clips:
-                drawClips(in: cg, size: size, filled: selected)
+            case .music:
+                drawMusic(in: cg, size: size, filled: selected)
             case .menu:
                 drawMenu(in: cg, size: size, filled: selected)
             }
@@ -46,21 +46,28 @@ enum TabBarIconFactory {
         if filled { body.fill() } else { body.stroke() }
     }
 
-    private static func drawSearch(in cg: CGContext, size: CGSize, filled: Bool) {
-        let circle = CGRect(x: 5, y: 5, width: 12, height: 12)
-        if filled {
-            UIBezierPath(ovalIn: circle).fill()
-            cg.setBlendMode(.clear)
-            UIBezierPath(ovalIn: CGRect(x: 8, y: 8, width: 6, height: 6)).fill()
-            cg.setBlendMode(.normal)
-        } else {
-            UIBezierPath(ovalIn: circle).stroke()
-        }
+    private static func drawSports(in cg: CGContext, size: CGSize, filled: Bool) {
+        let head = UIBezierPath(ovalIn: CGRect(x: 11, y: 4, width: 4, height: 4))
+        filled ? head.fill() : head.stroke()
 
-        let handle = UIBezierPath()
-        handle.move(to: CGPoint(x: 15, y: 15))
-        handle.addLine(to: CGPoint(x: 22, y: 22))
-        handle.stroke()
+        let body = UIBezierPath()
+        body.move(to: CGPoint(x: 13, y: 8))
+        body.addLine(to: CGPoint(x: 10, y: 12))
+        body.addLine(to: CGPoint(x: 14, y: 12))
+        body.addLine(to: CGPoint(x: 18, y: 18))
+        body.stroke()
+
+        let arm = UIBezierPath()
+        arm.move(to: CGPoint(x: 10, y: 12))
+        arm.addLine(to: CGPoint(x: 6, y: 14))
+        arm.stroke()
+
+        let leg = UIBezierPath()
+        leg.move(to: CGPoint(x: 14, y: 12))
+        leg.addLine(to: CGPoint(x: 10, y: 20))
+        leg.move(to: CGPoint(x: 14, y: 12))
+        leg.addLine(to: CGPoint(x: 20, y: 14))
+        leg.stroke()
     }
 
     private static func drawChats(in cg: CGContext, size: CGSize, filled: Bool) {
@@ -75,23 +82,19 @@ enum TabBarIconFactory {
         }
     }
 
-    private static func drawClips(in cg: CGContext, size: CGSize, filled: Bool) {
-        let rect = UIBezierPath(roundedRect: CGRect(x: 4, y: 6, width: 18, height: 14), cornerRadius: 3)
-        if filled { rect.fill() } else { rect.stroke() }
+    private static func drawMusic(in cg: CGContext, size: CGSize, filled: Bool) {
+        let noteHead = UIBezierPath(ovalIn: CGRect(x: 7, y: 15, width: 6, height: 6))
+        filled ? noteHead.fill() : noteHead.stroke()
 
-        let play = UIBezierPath()
-        play.move(to: CGPoint(x: 11, y: 9))
-        play.addLine(to: CGPoint(x: 11, y: 17))
-        play.addLine(to: CGPoint(x: 17, y: 13))
-        play.close()
+        let noteHead2 = UIBezierPath(ovalIn: CGRect(x: 15, y: 13, width: 6, height: 6))
+        filled ? noteHead2.fill() : noteHead2.stroke()
 
-        if filled {
-            cg.setBlendMode(.clear)
-            play.fill()
-            cg.setBlendMode(.normal)
-        } else {
-            play.fill()
-        }
+        let stem = UIBezierPath()
+        stem.move(to: CGPoint(x: 12, y: 17))
+        stem.addLine(to: CGPoint(x: 12, y: 6))
+        stem.addLine(to: CGPoint(x: 20, y: 8))
+        stem.addLine(to: CGPoint(x: 20, y: 15))
+        stem.stroke()
     }
 
     private static func drawMenu(in cg: CGContext, size: CGSize, filled: Bool) {

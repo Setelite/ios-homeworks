@@ -7,11 +7,19 @@
 
 import Foundation
 
-protocol FeedModelProtocol {
+protocol WordValidationServiceProtocol {
     func check(word: String) -> Bool
 }
 
-extension FeedModel: FeedModelProtocol {}
+struct WordValidationService: WordValidationServiceProtocol {
+    // Демонстрационное слово для экрана проверки.
+    private let correctWord = "кот"
+
+    func check(word: String) -> Bool {
+        word.trimmingCharacters(in: .whitespacesAndNewlines)
+            .localizedCaseInsensitiveCompare(correctWord) == .orderedSame
+    }
+}
 
 final class FeedViewModel {
 
@@ -21,10 +29,10 @@ final class FeedViewModel {
         case checked(isCorrect: Bool)
     }
 
-    private let model: FeedModelProtocol
+    private let model: WordValidationServiceProtocol
     private(set) var state: State = .idle
 
-    init(model: FeedModelProtocol = FeedModel()) {
+    init(model: WordValidationServiceProtocol = WordValidationService()) {
         self.model = model
     }
 

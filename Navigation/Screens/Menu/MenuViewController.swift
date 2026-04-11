@@ -3,6 +3,8 @@ import UIKit
 final class MenuViewController: UIViewController {
     enum MenuAction: CaseIterable {
         case profile
+        case sports
+        case nutrition
         case favorites
         case files
         case settings
@@ -12,6 +14,8 @@ final class MenuViewController: UIViewController {
         var title: String {
             switch self {
             case .profile: return L10n.tr("menu.profile")
+            case .sports: return L10n.tr("menu.sports")
+            case .nutrition: return L10n.tr("menu.nutrition")
             case .favorites: return L10n.tr("menu.favorites")
             case .files: return L10n.tr("menu.files")
             case .settings: return L10n.tr("menu.settings")
@@ -23,6 +27,8 @@ final class MenuViewController: UIViewController {
         var icon: String {
             switch self {
             case .profile: return "person.crop.circle"
+            case .sports: return "figure.run.circle"
+            case .nutrition: return "barcode.viewfinder"
             case .favorites: return "heart"
             case .files: return "folder"
             case .settings: return "gearshape"

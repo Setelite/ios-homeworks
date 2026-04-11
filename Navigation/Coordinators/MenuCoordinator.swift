@@ -24,9 +24,22 @@ final class MenuCoordinator: Coordinator {
     private func handle(action: MenuViewController.MenuAction) {
         switch action {
         case .profile:
-            let user = userService.getUser(login: "Wowgorno")
+            let login = FirebaseSessionStorage.shared.user?.email ?? "Wowgorno"
+            let user = userService.getUser(login: login)
             let vm = ProfileViewModel(user: user)
             let vc = ProfileViewController(viewModel: vm)
+            navigationController.pushViewController(vc, animated: true)
+
+        case .sports:
+            let vc = SportsHubViewController()
+            navigationController.pushViewController(vc, animated: true)
+
+        case .nutrition:
+            let vm = FoodScannerViewModel(
+                foodService: FoodService(),
+                diaryRepository: CoreDataNutritionDiaryRepository()
+            )
+            let vc = FoodScannerViewController(viewModel: vm)
             navigationController.pushViewController(vc, animated: true)
 
         case .favorites:
@@ -62,6 +75,7 @@ final class MenuCoordinator: Coordinator {
             self?.showPasswordFlow()
         }
         vc.onLogout = { [weak self] in
+            FirebaseSessionStorage.shared.clear()
             self?.navigationController.popToRootViewController(animated: true)
         }
         navigationController.pushViewController(vc, animated: true)

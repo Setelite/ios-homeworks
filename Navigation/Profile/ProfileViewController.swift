@@ -32,6 +32,7 @@ final class ProfileViewController: UIViewController {
 
     enum Section: Int, CaseIterable {
         case photos
+        case music
         case posts
     }
 
@@ -89,6 +90,7 @@ final class ProfileViewController: UIViewController {
             PhotosTableViewCell.self,
             forCellReuseIdentifier: PhotosTableViewCell.identifier
         )
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MusicEntryCell")
 
         tableView.tableHeaderView = makeHeaderView()
     }
@@ -129,6 +131,7 @@ final class ProfileViewController: UIViewController {
             self.navigationController?.pushViewController(passwordVC, animated: true)
         }
         vc.onLogout = { [weak self] in
+            FirebaseSessionStorage.shared.clear()
             self?.navigationController?.popToRootViewController(animated: true)
         }
         navigationController?.pushViewController(vc, animated: true)
@@ -200,6 +203,8 @@ extension ProfileViewController: UITableViewDataSource {
         switch section {
         case .photos:
             return 1
+        case .music:
+            return 1
         case .posts:
             return viewModel.posts.count
         }
@@ -223,6 +228,19 @@ extension ProfileViewController: UITableViewDataSource {
             ) as! PhotosTableViewCell
             cell.configure(with: viewModel.photos)
             cell.selectionStyle = .none
+            return cell
+
+        case .music:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: "MusicEntryCell",
+                for: indexPath
+            )
+            var config = cell.defaultContentConfiguration()
+            config.text = L10n.tr("music.profile.entry")
+            config.secondaryText = L10n.tr("music.profile.subtitle")
+            config.image = UIImage(systemName: "music.note.list")
+            cell.contentConfiguration = config
+            cell.accessoryType = .disclosureIndicator
             return cell
 
         case .posts:
@@ -258,6 +276,8 @@ extension ProfileViewController: UITableViewDelegate {
         switch section {
         case .photos:
             return 150
+        case .music:
+            return 72
         case .posts:
             let post = viewModel.posts[indexPath.row]
             let contentWidth = tableView.bounds.width - 32
@@ -288,6 +308,10 @@ extension ProfileViewController: UITableViewDelegate {
             vc.photos = viewModel.photos
             navigationController?.pushViewController(vc, animated: true)
 
+        case .music:
+            let vc = MyMusicViewController()
+            navigationController?.pushViewController(vc, animated: true)
+
         case .posts:
             let post = viewModel.posts[indexPath.row]
             let vc = PostViewController(post: post)
@@ -306,7 +330,6 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         let normalized = image.squareCropped()
 
         viewModel.updateAvatar(normalized)
-        CurrentUserService().updateAvatar(normalized)
 
         if let user = viewModel.user {
             headerView.configure(

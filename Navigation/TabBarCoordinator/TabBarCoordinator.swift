@@ -12,7 +12,7 @@ final class TabBarCoordinator: Coordinator {
 
     let tabBarController = UITabBarController()
     private var homeCoordinator: HomeCoordinator?
-    private var searchCoordinator: SearchCoordinator?
+    private var sportsCoordinator: SportsCoordinator?
     private var chatsCoordinator: ChatsCoordinator?
     private var clipsCoordinator: ClipsCoordinator?
     private var menuCoordinator: MenuCoordinator?
@@ -30,14 +30,14 @@ final class TabBarCoordinator: Coordinator {
             selectedImage: TabBarIconFactory.icon(for: .home, selected: true)
         )
 
-        let searchNav = UINavigationController()
-        let searchCoordinator = SearchCoordinator(navigationController: searchNav)
-        searchCoordinator.start()
-        self.searchCoordinator = searchCoordinator
-        searchNav.tabBarItem = UITabBarItem(
-            title: L10n.tr("tab.search"),
-            image: TabBarIconFactory.icon(for: .search, selected: false),
-            selectedImage: TabBarIconFactory.icon(for: .search, selected: true)
+        let sportsNav = UINavigationController()
+        let sportsCoordinator = SportsCoordinator(navigationController: sportsNav)
+        sportsCoordinator.start()
+        self.sportsCoordinator = sportsCoordinator
+        sportsNav.tabBarItem = UITabBarItem(
+            title: L10n.tr("tab.sports"),
+            image: TabBarIconFactory.icon(for: .sports, selected: false),
+            selectedImage: TabBarIconFactory.icon(for: .sports, selected: true)
         )
 
         let chatsNav = UINavigationController()
@@ -55,9 +55,9 @@ final class TabBarCoordinator: Coordinator {
         clipsCoordinator.start()
         self.clipsCoordinator = clipsCoordinator
         clipsNav.tabBarItem = UITabBarItem(
-            title: L10n.tr("tab.clips"),
-            image: TabBarIconFactory.icon(for: .clips, selected: false),
-            selectedImage: TabBarIconFactory.icon(for: .clips, selected: true)
+            title: L10n.tr("tab.music"),
+            image: TabBarIconFactory.icon(for: .music, selected: false),
+            selectedImage: TabBarIconFactory.icon(for: .music, selected: true)
         )
 
         let menuNav = UINavigationController()
@@ -72,7 +72,7 @@ final class TabBarCoordinator: Coordinator {
 
         tabBarController.viewControllers = [
             homeNav,
-            searchNav,
+            sportsNav,
             chatsNav,
             clipsNav,
             menuNav

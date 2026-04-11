@@ -1,7 +1,9 @@
 "tab.home" = "Home";
 "tab.search" = "Search";
+"tab.sports" = "Sports";
 "tab.chats" = "Chats";
 "tab.clips" = "Clips";
+"tab.music" = "Music";
 "tab.menu" = "Menu";
 
 "common.ok" = "OK";
@@ -20,6 +22,8 @@
 "home.post.new_message" = "Add a description";
 "home.post.description_placeholder" = "Post description";
 "home.post.publish" = "Publish";
+"home.post.create_source" = "New Post";
+"home.post.from_gallery" = "From Gallery";
 "home.post.edit_title" = "Edit post";
 "home.post.sheet_title" = "Post";
 "home.post.edit_description" = "Edit description";
@@ -29,6 +33,25 @@
 
 "search.state.loading" = "Searching posts...";
 "search.state.empty" = "Nothing found";
+"search.state.error" = "Failed to load data";
+"search.segment.celebrities" = "Celebrities";
+"search.segment.music" = "Music";
+"search.placeholder" = "Search";
+"search.player.play" = "Play";
+"search.player.pause" = "Pause";
+"search.celebrity.no_portfolio" = "Portfolio is empty";
+"search.track.preview" = "Preview";
+
+"music.title" = "My Music";
+"music.profile.entry" = "My Music";
+"music.profile.subtitle" = "50 popular tracks of 2026";
+"music.state.loading" = "Loading tracks...";
+"music.state.empty" = "No tracks found";
+"music.state.error" = "Failed to load music";
+"music.control.play" = "Play";
+"music.control.pause" = "Pause";
+"music.control.stop" = "Stop";
+
 
 "clips.item_format" = "Clip %d";
 "clips.state.loading" = "Selecting clips...";
@@ -47,12 +70,14 @@
 "chats.state.empty" = "No chats yet";
 "chat.detail.placeholder" = "Chat will appear here";
 "chat.input.placeholder" = "Message";
+"chat.placeholder.no_messages" = "No messages yet";
 "chat.send" = "Send";
 "chat.emoji.pick" = "Pick an emoji";
 "chat.message.default1" = "Hi! How are you?";
 "chat.message.default2" = "Great, let's call in the evening 👌";
 
 "menu.profile" = "Profile";
+"menu.sports" = "Sports Nearby";
 "menu.favorites" = "Favorites";
 "menu.files" = "Files";
 "menu.settings" = "Settings";
@@ -60,6 +85,26 @@
 "menu.info" = "Info";
 "menu.state.loading" = "Opening sections...";
 "menu.state.empty" = "No sections available";
+
+"sports.title" = "Sports Nearby";
+"sports.subtitle" = "People nearby, activity map and challenges in one screen.";
+"sports.section.map" = "Workout Map";
+"sports.section.nearby" = "People Nearby";
+"sports.section.challenges" = "Challenges";
+"sports.section.leaderboard" = "Leaderboard";
+"sports.state.loading" = "Loading sport activity...";
+"sports.nearby.distance" = "%.1f km away";
+"sports.nearby.empty" = "No people found for current filters";
+"sports.filter.sport.all" = "All";
+"sports.filter.sport.running" = "Run";
+"sports.filter.sport.cycling" = "Bike";
+"sports.filter.sport.yoga" = "Yoga";
+"sports.filter.radius.1" = "1 km";
+"sports.filter.radius.5" = "5 km";
+"sports.filter.radius.15" = "15 km";
+"sports.challenge.participants" = "Participants: %d";
+"sports.leaderboard.points" = "%d points";
+"sports.leaderboard.streak" = "Streak: %d d";
 
 "settings.title" = "Settings";
 "settings.theme" = "Theme";
@@ -82,7 +127,10 @@
 "login.email" = "Email";
 "login.password" = "Password";
 "login.submit" = "Sign in";
+"login.register" = "Sign up";
 "login.error.empty_credentials" = "Enter email and password";
+"login.error.signup_failed" = "Sign up failed";
+"login.error.internal" = "Internal login error. Restart the app.";
 
 "feed.title" = "Feed";
 "feed.enter_word" = "Enter word";
@@ -106,6 +154,7 @@
 "profile.followers" = "followers";
 "profile.status.new_placeholder" = "Enter new status";
 "profile.status.update" = "Update status";
+"profile.status.firebase" = "Signed in with Firebase";
 "profile.edit.title" = "Edit profile";
 "profile.edit.name" = "Name";
 "profile.edit.status" = "Status";
@@ -153,3 +202,27 @@
 "notifications.latest_updates.body" = "Check the latest updates";
 "notifications.latest_updates.open_action" = "Open updates";
 "notifications.latest_updates.action_triggered_log" = "Open updates action triggered";
+
+"menu.nutrition" = "Nutrition";
+"food.title" = "Food Scanner";
+"food.camera.hint" = "Point the camera at a barcode";
+"food.camera.denied" = "Camera access is disabled. Enter barcode manually.";
+"food.camera.unavailable" = "Camera is not available on this device";
+"food.barcode.placeholder" = "Enter barcode";
+"food.barcode.search" = "Find product";
+"food.state.loading" = "Searching product...";
+"food.diary.add" = "Add to diary";
+"food.diary.summary" = "Today: %.0f kcal • P %.1f • F %.1f • C %.1f";
+"food.diary.entry" = "%.0f kcal • P %.1f • F %.1f • C %.1f";
+"food.unknown_product" = "Unknown product";
+"food.ingredients.title" = "Ingredients";
+"food.ingredients.empty" = "Ingredients are not available";
+"food.allergens.title" = "Allergens";
+"food.allergens.none" = "Not specified";
+"food.error.diary_load" = "Failed to load nutrition diary";
+"food.error.diary_save" = "Failed to save diary entry";
+"api.error.bad_url" = "Request error";
+"api.error.network" = "Network is unavailable";
+"api.error.invalid_response" = "Service is temporarily unavailable";
+"api.error.not_found" = "Product not found";
+"api.error.decoding" = "Failed to parse response data";

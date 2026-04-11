@@ -13,14 +13,18 @@ import UIKit
 final class CurrentUserService: UserService {
     private enum Keys {
         static let avatarFileName = "currentUser.avatarFileName"
+        static let fullName = "currentUser.fullName"
+        static let status = "currentUser.status"
     }
 
-    private let loginValue = "Wowgorno"
-    private let fullNameValue = "Maxim Gornostayev"
-    private let statusValue = "iOS Developer"
+    private let defaultLoginValue = "Wowgorno"
+    private let defaultFullNameValue = "Maxim Gornostayev"
+    private let defaultStatusValue = "iOS Developer"
 
     func getUser(login: String) -> User? {
-        guard login == loginValue else { return nil }
+        let sessionUser = FirebaseSessionStorage.shared.user
+        let targetLogin = sessionUser?.email ?? defaultLoginValue
+        guard login == targetLogin || login == defaultLoginValue else { return nil }
 
         // Avatar priority: user-selected image from Documents -> bundled default asset.
         let avatar: UIImage
@@ -31,17 +35,42 @@ final class CurrentUserService: UserService {
             avatar = UIImage(named: "my_photo") ?? UIImage()
         }
 
+        let fullName: String = {
+            if let cached = UserDefaults.standard.string(forKey: Keys.fullName), !cached.isEmpty {
+                return cached
+            }
+            if let sessionName = sessionUser?.displayName, !sessionName.isEmpty {
+                return sessionName
+            }
+            return defaultFullNameValue
+        }()
+
+        let status: String = {
+            if let cached = UserDefaults.standard.string(forKey: Keys.status), !cached.isEmpty {
+                return cached
+            }
+            if sessionUser != nil {
+                return L10n.tr("profile.status.firebase")
+            }
+            return defaultStatusValue
+        }()
+
         return User(
-            login: loginValue,
-            fullName: fullNameValue,
+            login: targetLogin,
+            fullName: fullName,
             avatar: avatar,
-            status: statusValue
+            status: status
         )
     }
     
     func updateAvatar(_ avatar: UIImage) {
         guard let fileName = saveAvatar(avatar) else { return }
         UserDefaults.standard.set(fileName, forKey: Keys.avatarFileName)
+    }
+
+    func updateProfile(fullName: String, status: String) {
+        UserDefaults.standard.set(fullName, forKey: Keys.fullName)
+        UserDefaults.standard.set(status, forKey: Keys.status)
     }
     
     private func documentsDirectory() -> URL? {

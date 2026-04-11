@@ -10,7 +10,7 @@ import XCTest
 
 final class FeedViewModelTests: XCTestCase {
 
-    private final class FeedModelMock: FeedModelProtocol {
+    private final class FeedModelMock: WordValidationServiceProtocol {
         var checkResult: Bool = false
         private(set) var lastWord: String?
 

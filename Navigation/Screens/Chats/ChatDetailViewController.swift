@@ -9,6 +9,9 @@ final class ChatDetailViewController: UIViewController {
     }
 
     private let titleText: String
+    private let roomID: String
+    private let chatService: FirebaseChatServiceProtocol
+
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let composerView = UIView()
     private let inputContainerView = UIView()
@@ -17,16 +20,22 @@ final class ChatDetailViewController: UIViewController {
     private let emojiButton = UIButton(type: .system)
     private let sendButton = UIButton(type: .system)
     private var composerBottomConstraint: NSLayoutConstraint?
-    private var messages: [Message] = [
-        Message(id: UUID(), text: L10n.tr("chat.message.default1"), isOutgoing: false, date: .now),
-        Message(id: UUID(), text: L10n.tr("chat.message.default2"), isOutgoing: true, date: .now)
-    ]
 
-    init(title: String) {
+    private var messages: [Message] = []
+    private var refreshTimer: Timer?
+
+    init(
+        title: String,
+        roomID: String,
+        chatService: FirebaseChatServiceProtocol = FirebaseChatService()
+    ) {
         self.titleText = title
+        self.roomID = roomID
+        self.chatService = chatService
         super.init(nibName: nil, bundle: nil)
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -38,11 +47,22 @@ final class ChatDetailViewController: UIViewController {
         setupTableView()
         setupComposer()
         setupKeyboardHandling()
-        scrollToBottom(animated: false)
+        loadMessages()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        startPolling()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopPolling()
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
+        stopPolling()
     }
 
     private func setupTableView() {
@@ -189,15 +209,65 @@ final class ChatDetailViewController: UIViewController {
         placeholderLabel.isHidden = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private func startPolling() {
+        stopPolling()
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: true) { [weak self] _ in
+            self?.loadMessages()
+        }
+    }
+
+    private func stopPolling() {
+        refreshTimer?.invalidate()
+        refreshTimer = nil
+    }
+
+    private func loadMessages() {
+        guard let token = FirebaseSessionStorage.shared.token,
+              let currentUser = FirebaseSessionStorage.shared.user?.email else {
+            return
+        }
+
+        Task {
+            let apiMessages = (try? await chatService.fetchMessages(roomID: roomID, token: token)) ?? []
+            let mapped = apiMessages.map {
+                Message(
+                    id: UUID(),
+                    text: $0.text,
+                    isOutgoing: FirebaseChatService.normalizedUserID($0.sender) == FirebaseChatService.normalizedUserID(currentUser),
+                    date: $0.sentAt
+                )
+            }
+
+            await MainActor.run {
+                self.messages = mapped
+                self.tableView.reloadData()
+                self.scrollToBottom(animated: true)
+            }
+        }
+    }
+
     @objc private func sendTapped() {
         let text = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        guard let token = FirebaseSessionStorage.shared.token,
+              let currentUser = FirebaseSessionStorage.shared.user?.email else { return }
 
-        messages.append(Message(id: UUID(), text: text, isOutgoing: true, date: .now))
         textView.text = ""
         placeholderLabel.isHidden = false
-        tableView.reloadData()
-        scrollToBottom(animated: true)
+
+        Task {
+            do {
+                try await chatService.sendMessage(roomID: roomID, sender: currentUser, text: text, token: token)
+                await MainActor.run {
+                    self.loadMessages()
+                }
+            } catch {
+                await MainActor.run {
+                    self.textView.text = text
+                    self.placeholderLabel.isHidden = true
+                }
+            }
+        }
     }
 
     private func scrollToBottom(animated: Bool) {

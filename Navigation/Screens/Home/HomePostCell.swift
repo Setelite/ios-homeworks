@@ -2,8 +2,11 @@ import UIKit
 
 struct HomeFeedPost {
     var post: Post
+    var avatarURL: URL?
+    var publishedAt: Date?
     var localImage: UIImage?
     var localImageFileName: String?
+    var remoteImageURL: URL?
     var likeCount: Int
     var commentCount: Int
     var shareCount: Int
@@ -15,7 +18,9 @@ final class HomePostCell: UITableViewCell {
     static let identifier = "HomePostCell"
 
     private let cardView = UIView()
+    private let avatarImageView = UIImageView()
     private let authorLabel = UILabel()
+    private let dateLabel = UILabel()
     private let postImageView = UIImageView()
     private let descriptionLabel = UILabel()
 
@@ -23,10 +28,14 @@ final class HomePostCell: UITableViewCell {
     private let commentButton = UIButton(type: .system)
     private let shareButton = UIButton(type: .system)
     private let actionsStack = UIStackView()
+    private var imageTask: URLSessionDataTask?
+    private var avatarTask: URLSessionDataTask?
+    private static let imageCache = NSCache<NSURL, UIImage>()
 
     var onLikeTap: (() -> Void)?
     var onCommentTap: (() -> Void)?
     var onShareTap: (() -> Void)?
+    private var isSkeletonMode = false
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -39,9 +48,22 @@ final class HomePostCell: UITableViewCell {
     }
 
     func configure(with model: HomeFeedPost) {
+        isSkeletonMode = false
+        avatarImageView.isHidden = false
+        authorLabel.isHidden = false
+        dateLabel.isHidden = false
+        descriptionLabel.isHidden = false
+        actionsStack.isHidden = false
+        [cardView, authorLabel, descriptionLabel, postImageView].forEach { view in
+            view.layer.removeAllAnimations()
+            view.backgroundColor = .clear
+        }
+
         authorLabel.text = model.post.author
+        dateLabel.text = model.publishedAt.map(Self.relativeDateText) ?? ""
         descriptionLabel.text = model.post.description
-        postImageView.image = model.localImage ?? UIImage(named: model.post.image)
+        applyImage(model: model)
+        applyAvatar(model: model)
 
         let likeIcon = model.isLiked ? "heart.fill" : "heart"
         likeButton.setImage(UIImage(systemName: likeIcon), for: .normal)
@@ -55,6 +77,52 @@ final class HomePostCell: UITableViewCell {
         shareButton.setTitle(" \(model.shareCount)", for: .normal)
     }
 
+    func configureSkeleton() {
+        isSkeletonMode = true
+        authorLabel.text = nil
+        dateLabel.text = nil
+        descriptionLabel.text = nil
+        postImageView.image = nil
+        avatarImageView.image = nil
+        likeButton.setTitle(nil, for: .normal)
+        commentButton.setTitle(nil, for: .normal)
+        shareButton.setTitle(nil, for: .normal)
+
+        actionsStack.isHidden = true
+        avatarImageView.isHidden = true
+        authorLabel.isHidden = true
+        dateLabel.isHidden = true
+        descriptionLabel.isHidden = true
+
+        postImageView.backgroundColor = StyleGuide.Colors.backgroundSecondary
+        cardView.backgroundColor = StyleGuide.Colors.card.withAlphaComponent(0.65)
+
+        let pulse = CABasicAnimation(keyPath: "opacity")
+        pulse.fromValue = 0.45
+        pulse.toValue = 1
+        pulse.duration = 0.85
+        pulse.autoreverses = true
+        pulse.repeatCount = .infinity
+        cardView.layer.add(pulse, forKey: "skeletonPulse")
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageTask?.cancel()
+        avatarTask?.cancel()
+        imageTask = nil
+        avatarTask = nil
+        postImageView.image = nil
+        avatarImageView.image = nil
+        cardView.layer.removeAnimation(forKey: "skeletonPulse")
+        if isSkeletonMode {
+            [avatarImageView, authorLabel, dateLabel, descriptionLabel, actionsStack].forEach { $0.isHidden = false }
+            postImageView.backgroundColor = .clear
+            cardView.backgroundColor = StyleGuide.Colors.card
+            isSkeletonMode = false
+        }
+    }
+
     private func setupUI() {
         backgroundColor = StyleGuide.Colors.backgroundPrimary
         selectionStyle = .none
@@ -65,9 +133,19 @@ final class HomePostCell: UITableViewCell {
         cardView.layer.borderColor = StyleGuide.Colors.border.cgColor
         cardView.translatesAutoresizingMaskIntoConstraints = false
 
+        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+        avatarImageView.contentMode = .scaleAspectFill
+        avatarImageView.clipsToBounds = true
+        avatarImageView.layer.cornerRadius = 16
+        avatarImageView.backgroundColor = StyleGuide.Colors.backgroundSecondary
+
         authorLabel.font = StyleGuide.Fonts.body(15, weight: .semibold)
         authorLabel.textColor = StyleGuide.Colors.textPrimary
         authorLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        dateLabel.font = StyleGuide.Fonts.caption(12, weight: .regular)
+        dateLabel.textColor = StyleGuide.Colors.textSecondary
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
 
         postImageView.contentMode = .scaleAspectFill
         postImageView.clipsToBounds = true
@@ -94,7 +172,9 @@ final class HomePostCell: UITableViewCell {
         actionsStack.addArrangedSubview(shareButton)
 
         contentView.addSubview(cardView)
+        cardView.addSubview(avatarImageView)
         cardView.addSubview(authorLabel)
+        cardView.addSubview(dateLabel)
         cardView.addSubview(postImageView)
         cardView.addSubview(descriptionLabel)
         cardView.addSubview(actionsStack)
@@ -105,11 +185,20 @@ final class HomePostCell: UITableViewCell {
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             cardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
 
-            authorLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
-            authorLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
+            avatarImageView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 10),
+            avatarImageView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 32),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 32),
+
+            authorLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 11),
+            authorLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 10),
             authorLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
 
-            postImageView.topAnchor.constraint(equalTo: authorLabel.bottomAnchor, constant: 10),
+            dateLabel.topAnchor.constraint(equalTo: authorLabel.bottomAnchor, constant: 1),
+            dateLabel.leadingAnchor.constraint(equalTo: authorLabel.leadingAnchor),
+            dateLabel.trailingAnchor.constraint(equalTo: authorLabel.trailingAnchor),
+
+            postImageView.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             postImageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
             postImageView.heightAnchor.constraint(equalTo: postImageView.widthAnchor, multiplier: 0.62),
@@ -142,5 +231,75 @@ final class HomePostCell: UITableViewCell {
 
     @objc private func shareTap() {
         onShareTap?()
+    }
+
+    private func applyImage(model: HomeFeedPost) {
+        imageTask?.cancel()
+        imageTask = nil
+
+        if let localImage = model.localImage {
+            postImageView.image = localImage
+            return
+        }
+
+        if let remoteURL = model.remoteImageURL {
+            let nsURL = remoteURL as NSURL
+            if let cached = Self.imageCache.object(forKey: nsURL) {
+                postImageView.image = cached
+                return
+            }
+
+            postImageView.image = fallbackImage(for: model)
+            imageTask = URLSession.shared.dataTask(with: remoteURL) { [weak self] data, _, _ in
+                guard let self,
+                      let data,
+                      let image = UIImage(data: data) else { return }
+                Self.imageCache.setObject(image, forKey: nsURL)
+                DispatchQueue.main.async {
+                    self.postImageView.image = image
+                }
+            }
+            imageTask?.resume()
+            return
+        }
+
+        postImageView.image = fallbackImage(for: model)
+    }
+
+    private func applyAvatar(model: HomeFeedPost) {
+        avatarTask?.cancel()
+        avatarTask = nil
+        avatarImageView.image = UIImage(systemName: "person.crop.circle.fill")
+        avatarImageView.tintColor = StyleGuide.Colors.textSecondary
+
+        guard let remoteURL = model.avatarURL else { return }
+        let nsURL = remoteURL as NSURL
+
+        if let cached = Self.imageCache.object(forKey: nsURL) {
+            avatarImageView.image = cached
+            return
+        }
+
+        avatarTask = URLSession.shared.dataTask(with: remoteURL) { [weak self] data, _, _ in
+            guard let self,
+                  let data,
+                  let image = UIImage(data: data) else { return }
+
+            Self.imageCache.setObject(image, forKey: nsURL)
+            DispatchQueue.main.async {
+                self.avatarImageView.image = image
+            }
+        }
+        avatarTask?.resume()
+    }
+
+    private static func relativeDateText(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
+    private func fallbackImage(for model: HomeFeedPost) -> UIImage? {
+        return UIImage(named: model.post.image)
     }
 }

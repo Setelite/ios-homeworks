@@ -55,12 +55,22 @@ final class LogInViewController: UIViewController {
         self?.tryLogin()
     }
 
+    private lazy var signUpButton = CustomButton(
+        title: L10n.tr("login.register"),
+        titleColor: StyleGuide.Colors.accent,
+        backgroundColor: StyleGuide.Colors.backgroundSecondary
+    ) { [weak self] in
+        self?.trySignUp()
+    }
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = StyleGuide.Colors.backgroundPrimary
         setupUI()
+        loginButton.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
+        signUpButton.addTarget(self, action: #selector(signUpButtonPressed), for: .touchUpInside)
         setupKeyboardObservers()
     }
 
@@ -81,8 +91,47 @@ final class LogInViewController: UIViewController {
         case .errorEmpty:
             showAlert(L10n.tr("common.error"), L10n.tr("login.error.empty_credentials"))
         case .ready(let email, let password):
+            guard loginDelegate != nil else {
+                showAlert(L10n.tr("common.error"), L10n.tr("login.error.internal"))
+                return
+            }
             loginDelegate?.checkCredentials(email: email, password: password)
         }
+    }
+
+    @objc private func loginButtonPressed() {
+        tryLogin()
+    }
+
+    private func trySignUp() {
+        viewModel.submit(email: loginField.text, password: passwordField.text)
+
+        switch viewModel.state {
+        case .idle:
+            return
+        case .errorEmpty:
+            showAlert(L10n.tr("common.error"), L10n.tr("login.error.empty_credentials"))
+        case .ready(let email, let password):
+            guard let loginDelegate else {
+                showAlert(L10n.tr("common.error"), L10n.tr("login.error.internal"))
+                return
+            }
+
+            loginDelegate.signUp(email: email, password: password) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        break
+                    case .failure:
+                        self?.showAlert(L10n.tr("common.error"), L10n.tr("login.error.signup_failed"))
+                    }
+                }
+            }
+        }
+    }
+
+    @objc private func signUpButtonPressed() {
+        trySignUp()
     }
 
     // MARK: - UI Setup
@@ -90,13 +139,13 @@ final class LogInViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
 
-        [logoImageView, loginField, passwordField, loginButton]
+        [logoImageView, loginField, passwordField, loginButton, signUpButton]
             .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        [logoImageView, loginField, passwordField, loginButton]
+        [logoImageView, loginField, passwordField, loginButton, signUpButton]
             .forEach { contentView.addSubview($0) }
 
         NSLayoutConstraint.activate([
@@ -130,7 +179,12 @@ final class LogInViewController: UIViewController {
             loginButton.leadingAnchor.constraint(equalTo: loginField.leadingAnchor),
             loginButton.trailingAnchor.constraint(equalTo: loginField.trailingAnchor),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
-            loginButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
+
+            signUpButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 12),
+            signUpButton.leadingAnchor.constraint(equalTo: loginField.leadingAnchor),
+            signUpButton.trailingAnchor.constraint(equalTo: loginField.trailingAnchor),
+            signUpButton.heightAnchor.constraint(equalToConstant: 50),
+            signUpButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
         ])
     }
 

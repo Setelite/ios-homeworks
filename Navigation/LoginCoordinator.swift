@@ -10,6 +10,7 @@ import UIKit
 final class LoginCoordinator: Coordinator {
 
     private let navigationController: UINavigationController
+    private var inspector: LoginInspector?
 
     var onFinish: ((User) -> Void)?
 
@@ -25,9 +26,9 @@ final class LoginCoordinator: Coordinator {
         inspector.onLoginSuccess = { [weak self] user in
             self?.onFinish?(user)
         }
+        self.inspector = inspector
 
         loginVC.loginDelegate = inspector
         navigationController.pushViewController(loginVC, animated: true)
     }
 }
-

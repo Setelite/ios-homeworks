@@ -25,11 +25,16 @@ final class SocialFeedViewModel {
         self.cacheRepository = cacheRepository
     }
 
+    func setGenre(_ genre: FeedGenre) {
+        (service as? FeedGenreConfigurable)?.setGenre(genre)
+    }
+
     @MainActor
     func loadInitial() async {
         state = .loading
 
-        if let cached = try? cacheRepository.loadPosts(limit: 20), !cached.isEmpty {
+        if let cached = try? cacheRepository.loadPosts(limit: 20).filter({ $0.id.hasPrefix("catapi_") }),
+           !cached.isEmpty {
             state = .content(cached)
         }
 
@@ -45,7 +50,8 @@ final class SocialFeedViewModel {
                 ? .error(L10n.tr("home.state.empty"))
                 : .content(posts)
         } catch {
-            if let cached = try? cacheRepository.loadPosts(limit: 20), !cached.isEmpty {
+            if let cached = try? cacheRepository.loadPosts(limit: 20).filter({ $0.id.hasPrefix("catapi_") }),
+               !cached.isEmpty {
                 state = .content(cached)
                 return
             }

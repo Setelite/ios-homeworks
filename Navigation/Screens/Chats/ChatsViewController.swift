@@ -11,18 +11,17 @@ final class ChatsViewController: UIViewController {
     private let tableView = UITableView()
     private let stateView = ScreenStateView()
     private let chatService: FirebaseChatServiceProtocol
-
-    private let peers: [String] = [
-        L10n.tr("chat.item.netology.name"),
-        "iOS Team",
-        L10n.tr("chat.item.friends.name"),
-        "Maxim"
-    ]
+    private let userProfileService: FirebaseUserProfileServiceProtocol
+    private var peers: [String] = []
 
     private var chats: [ChatItem] = []
 
-    init(chatService: FirebaseChatServiceProtocol = FirebaseChatService()) {
+    init(
+        chatService: FirebaseChatServiceProtocol = FirebaseChatService(),
+        userProfileService: FirebaseUserProfileServiceProtocol = FirebaseUserProfileService()
+    ) {
         self.chatService = chatService
+        self.userProfileService = userProfileService
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -75,7 +74,8 @@ final class ChatsViewController: UIViewController {
 
         guard let token = FirebaseSessionStorage.shared.token,
               let currentUser = FirebaseSessionStorage.shared.user?.email else {
-            chats = peers.map {
+            let fallbackPeers = defaultPeers()
+            chats = fallbackPeers.map {
                 ChatItem(
                     name: $0,
                     roomID: FirebaseChatService.roomID(currentUser: "guest", peer: $0),
@@ -89,7 +89,9 @@ final class ChatsViewController: UIViewController {
         }
 
         Task {
-            let dialogs = (try? await chatService.fetchDialogs(currentUser: currentUser, peers: peers, token: token)) ?? []
+            let remotePeers = (try? await userProfileService.fetchUserEmails(idToken: token, excluding: currentUser)) ?? []
+            self.peers = remotePeers.isEmpty ? self.defaultPeers() : remotePeers
+            let dialogs = (try? await chatService.fetchDialogs(currentUser: currentUser, peers: self.peers, token: token)) ?? []
             await MainActor.run {
                 self.chats = dialogs.map {
                     ChatItem(name: $0.peerName, roomID: $0.roomID, lastMessage: $0.lastMessage, time: $0.time)
@@ -103,6 +105,15 @@ final class ChatsViewController: UIViewController {
                 }
             }
         }
+    }
+
+    private func defaultPeers() -> [String] {
+        [
+            L10n.tr("chat.item.netology.name"),
+            "ios.team@platform.app",
+            L10n.tr("chat.item.friends.name"),
+            "maxim@platform.app"
+        ]
     }
 }
 

@@ -2,8 +2,16 @@ import Foundation
 
 struct FirebaseAuthenticatedUser: Equatable {
     let email: String
+    let uid: String?
     let displayName: String?
     let photoURL: String?
+
+    init(email: String, uid: String? = nil, displayName: String? = nil, photoURL: String? = nil) {
+        self.email = email
+        self.uid = uid
+        self.displayName = displayName
+        self.photoURL = photoURL
+    }
 }
 
 struct FirebaseAuthSession: Equatable {
@@ -24,6 +32,7 @@ final class FirebaseSessionStorage {
         static let idToken = "firebase.session.idToken"
         static let refreshToken = "firebase.session.refreshToken"
         static let email = "firebase.session.email"
+        static let uid = "firebase.session.uid"
         static let displayName = "firebase.session.displayName"
         static let photoURL = "firebase.session.photoURL"
     }
@@ -46,6 +55,7 @@ final class FirebaseSessionStorage {
         guard let email = defaults.string(forKey: Keys.email) else { return nil }
         return FirebaseAuthenticatedUser(
             email: email,
+            uid: defaults.string(forKey: Keys.uid),
             displayName: defaults.string(forKey: Keys.displayName),
             photoURL: defaults.string(forKey: Keys.photoURL)
         )
@@ -55,6 +65,7 @@ final class FirebaseSessionStorage {
         defaults.set(session.idToken, forKey: Keys.idToken)
         defaults.set(session.refreshToken, forKey: Keys.refreshToken)
         defaults.set(session.user.email, forKey: Keys.email)
+        defaults.set(session.user.uid, forKey: Keys.uid)
         defaults.set(session.user.displayName, forKey: Keys.displayName)
         defaults.set(session.user.photoURL, forKey: Keys.photoURL)
     }
@@ -63,6 +74,7 @@ final class FirebaseSessionStorage {
         defaults.removeObject(forKey: Keys.idToken)
         defaults.removeObject(forKey: Keys.refreshToken)
         defaults.removeObject(forKey: Keys.email)
+        defaults.removeObject(forKey: Keys.uid)
         defaults.removeObject(forKey: Keys.displayName)
         defaults.removeObject(forKey: Keys.photoURL)
     }
@@ -79,6 +91,7 @@ final class FirebaseAuthRESTService: FirebaseAuthServiceProtocol {
         let idToken: String
         let refreshToken: String
         let email: String
+        let localId: String?
     }
 
     private struct LookupRequest: Encodable {
@@ -87,6 +100,7 @@ final class FirebaseAuthRESTService: FirebaseAuthServiceProtocol {
 
     private struct LookupResponse: Decodable {
         struct UserData: Decodable {
+            let localId: String?
             let email: String?
             let displayName: String?
             let photoUrl: String?
@@ -131,6 +145,7 @@ final class FirebaseAuthRESTService: FirebaseAuthServiceProtocol {
             refreshToken: authResponse.refreshToken,
             user: FirebaseAuthenticatedUser(
                 email: profile?.email ?? authResponse.email,
+                uid: profile?.localId ?? authResponse.localId,
                 displayName: profile?.displayName,
                 photoURL: profile?.photoUrl
             )

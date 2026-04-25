@@ -10,13 +10,16 @@ import Foundation
 /// Service responsible for email/password authentication via Firebase.
 final class CheckerService: CheckerServiceProtocol {
     private let authService: FirebaseAuthServiceProtocol
+    private let userProfileService: FirebaseUserProfileServiceProtocol
     private let sessionStorage: FirebaseSessionStorage
 
     init(
         authService: FirebaseAuthServiceProtocol = FirebaseAuthRESTService(),
+        userProfileService: FirebaseUserProfileServiceProtocol = FirebaseUserProfileService(),
         sessionStorage: FirebaseSessionStorage = .shared
     ) {
         self.authService = authService
+        self.userProfileService = userProfileService
         self.sessionStorage = sessionStorage
     }
 
@@ -38,19 +41,13 @@ final class CheckerService: CheckerServiceProtocol {
             do {
                 let session = try await authService.signIn(email: email, password: password)
                 sessionStorage.store(session: session)
+                try? await userProfileService.upsertUserProfile(user: session.user, idToken: session.idToken)
                 await MainActor.run {
                     completion(.success(()))
                 }
             } catch {
-                // Fallback для оффлайн/тестового режима: не блокируем вход при проблемах сети/Firebase.
-                let localSession = FirebaseAuthSession(
-                    idToken: UUID().uuidString,
-                    refreshToken: UUID().uuidString,
-                    user: FirebaseAuthenticatedUser(email: email, displayName: nil, photoURL: nil)
-                )
-                sessionStorage.store(session: localSession)
                 await MainActor.run {
-                    completion(.success(()))
+                    completion(.failure(error))
                 }
             }
         }
@@ -73,19 +70,14 @@ final class CheckerService: CheckerServiceProtocol {
         Task {
             do {
                 let session = try await authService.signUp(email: email, password: password)
+                try await userProfileService.upsertUserProfile(user: session.user, idToken: session.idToken)
                 sessionStorage.store(session: session)
                 await MainActor.run {
                     completion(.success(()))
                 }
             } catch {
-                let localSession = FirebaseAuthSession(
-                    idToken: UUID().uuidString,
-                    refreshToken: UUID().uuidString,
-                    user: FirebaseAuthenticatedUser(email: email, displayName: nil, photoURL: nil)
-                )
-                sessionStorage.store(session: localSession)
                 await MainActor.run {
-                    completion(.success(()))
+                    completion(.failure(error))
                 }
             }
         }

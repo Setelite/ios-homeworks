@@ -14,7 +14,7 @@ final class HomeCoordinator: Coordinator {
 
     func start() {
         let feedViewModel = SocialFeedViewModel(
-            service: FeedService(),
+            service: CatFeedService(),
             cacheRepository: CoreDataFeedCacheRepository()
         )
         let vc = HomeViewController(remoteFeedViewModel: feedViewModel)

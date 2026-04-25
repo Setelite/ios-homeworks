@@ -2,7 +2,6 @@ import UIKit
 
 enum VKTabIcon {
     case home
-    case sports
     case chats
     case music
     case menu
@@ -22,8 +21,6 @@ enum TabBarIconFactory {
             switch type {
             case .home:
                 drawHome(in: cg, size: size, filled: selected)
-            case .sports:
-                drawSports(in: cg, size: size, filled: selected)
             case .chats:
                 drawChats(in: cg, size: size, filled: selected)
             case .music:
@@ -44,30 +41,6 @@ enum TabBarIconFactory {
 
         let body = UIBezierPath(roundedRect: rect, cornerRadius: 2)
         if filled { body.fill() } else { body.stroke() }
-    }
-
-    private static func drawSports(in cg: CGContext, size: CGSize, filled: Bool) {
-        let head = UIBezierPath(ovalIn: CGRect(x: 11, y: 4, width: 4, height: 4))
-        filled ? head.fill() : head.stroke()
-
-        let body = UIBezierPath()
-        body.move(to: CGPoint(x: 13, y: 8))
-        body.addLine(to: CGPoint(x: 10, y: 12))
-        body.addLine(to: CGPoint(x: 14, y: 12))
-        body.addLine(to: CGPoint(x: 18, y: 18))
-        body.stroke()
-
-        let arm = UIBezierPath()
-        arm.move(to: CGPoint(x: 10, y: 12))
-        arm.addLine(to: CGPoint(x: 6, y: 14))
-        arm.stroke()
-
-        let leg = UIBezierPath()
-        leg.move(to: CGPoint(x: 14, y: 12))
-        leg.addLine(to: CGPoint(x: 10, y: 20))
-        leg.move(to: CGPoint(x: 14, y: 12))
-        leg.addLine(to: CGPoint(x: 20, y: 14))
-        leg.stroke()
     }
 
     private static func drawChats(in cg: CGContext, size: CGSize, filled: Bool) {

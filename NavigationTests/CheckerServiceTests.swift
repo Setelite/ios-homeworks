@@ -25,8 +25,17 @@ final class CheckerServiceTests: XCTestCase {
         }
     }
 
+    private final class ProfileServiceMock: FirebaseUserProfileServiceProtocol {
+        func upsertUserProfile(user: FirebaseAuthenticatedUser, idToken: String) async throws {}
+        func fetchUserEmails(idToken: String, excluding email: String?) async throws -> [String] { [] }
+    }
+
     func testCheckCredentials_whenEmailAndPasswordAreNotEmpty_returnsSuccess() {
-        let service = CheckerService(authService: AuthServiceMock(), sessionStorage: FirebaseSessionStorage(defaults: UserDefaults()))
+        let service = CheckerService(
+            authService: AuthServiceMock(),
+            userProfileService: ProfileServiceMock(),
+            sessionStorage: FirebaseSessionStorage(defaults: UserDefaults())
+        )
         let exp = expectation(description: "checkCredentials")
 
         service.checkCredentials(email: "user@example.com", password: "1234") { result in
@@ -40,7 +49,11 @@ final class CheckerServiceTests: XCTestCase {
     }
 
     func testCheckCredentials_whenEmailIsEmpty_returnsFailure() {
-        let service = CheckerService(authService: AuthServiceMock(), sessionStorage: FirebaseSessionStorage(defaults: UserDefaults()))
+        let service = CheckerService(
+            authService: AuthServiceMock(),
+            userProfileService: ProfileServiceMock(),
+            sessionStorage: FirebaseSessionStorage(defaults: UserDefaults())
+        )
         let exp = expectation(description: "checkCredentials")
 
         service.checkCredentials(email: "", password: "1234") { result in
@@ -54,7 +67,11 @@ final class CheckerServiceTests: XCTestCase {
     }
 
     func testCheckCredentials_whenPasswordIsEmpty_returnsFailure() {
-        let service = CheckerService(authService: AuthServiceMock(), sessionStorage: FirebaseSessionStorage(defaults: UserDefaults()))
+        let service = CheckerService(
+            authService: AuthServiceMock(),
+            userProfileService: ProfileServiceMock(),
+            sessionStorage: FirebaseSessionStorage(defaults: UserDefaults())
+        )
         let exp = expectation(description: "checkCredentials")
 
         service.checkCredentials(email: "user@example.com", password: "") { result in
@@ -68,7 +85,11 @@ final class CheckerServiceTests: XCTestCase {
     }
 
     func testSignUp_returnsSuccess() {
-        let service = CheckerService(authService: AuthServiceMock(), sessionStorage: FirebaseSessionStorage(defaults: UserDefaults()))
+        let service = CheckerService(
+            authService: AuthServiceMock(),
+            userProfileService: ProfileServiceMock(),
+            sessionStorage: FirebaseSessionStorage(defaults: UserDefaults())
+        )
         let exp = expectation(description: "signUp")
 
         service.signUp(email: "user@example.com", password: "1234") { result in

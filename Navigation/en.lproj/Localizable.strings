@@ -1,6 +1,5 @@
 "tab.home" = "Home";
 "tab.search" = "Search";
-"tab.sports" = "Sports";
 "tab.chats" = "Chats";
 "tab.clips" = "Clips";
 "tab.music" = "Music";
@@ -28,8 +27,17 @@
 "home.post.sheet_title" = "Post";
 "home.post.edit_description" = "Edit description";
 "home.post.delete" = "Delete post";
+"home.post.comment_title" = "New comment";
+"home.post.comment_placeholder" = "Type a comment";
 "home.error.save_photo" = "Failed to save post photo";
 "home.error.load_photo" = "Failed to load photo";
+"home.error.long_no_internet" = "No internet connection for a while. Please check your network and try again.";
+"home.genre.button" = "Genre";
+"home.genre.title" = "Select genre";
+"home.genre.humor" = "Humor";
+"home.genre.animals" = "Animals";
+"home.genre.cinema" = "Cinema";
+"home.genre.travel" = "Travel";
 
 "search.state.loading" = "Searching posts...";
 "search.state.empty" = "Nothing found";
@@ -77,7 +85,6 @@
 "chat.message.default2" = "Great, let's call in the evening 👌";
 
 "menu.profile" = "Profile";
-"menu.sports" = "Sports Nearby";
 "menu.favorites" = "Favorites";
 "menu.files" = "Files";
 "menu.settings" = "Settings";
@@ -86,25 +93,6 @@
 "menu.state.loading" = "Opening sections...";
 "menu.state.empty" = "No sections available";
 
-"sports.title" = "Sports Nearby";
-"sports.subtitle" = "People nearby, activity map and challenges in one screen.";
-"sports.section.map" = "Workout Map";
-"sports.section.nearby" = "People Nearby";
-"sports.section.challenges" = "Challenges";
-"sports.section.leaderboard" = "Leaderboard";
-"sports.state.loading" = "Loading sport activity...";
-"sports.nearby.distance" = "%.1f km away";
-"sports.nearby.empty" = "No people found for current filters";
-"sports.filter.sport.all" = "All";
-"sports.filter.sport.running" = "Run";
-"sports.filter.sport.cycling" = "Bike";
-"sports.filter.sport.yoga" = "Yoga";
-"sports.filter.radius.1" = "1 km";
-"sports.filter.radius.5" = "5 km";
-"sports.filter.radius.15" = "15 km";
-"sports.challenge.participants" = "Participants: %d";
-"sports.leaderboard.points" = "%d points";
-"sports.leaderboard.streak" = "Streak: %d d";
 
 "settings.title" = "Settings";
 "settings.theme" = "Theme";
@@ -185,7 +173,7 @@
 "post.likes" = "Likes: %d";
 "post.views" = "Views: %d";
 "post.author.netology" = "Netology";
-"post.author.vk_media" = "VK Media";
+"post.author.media" = "Media";
 "post.author.friends" = "Friends";
 "post.author.design" = "Design";
 "post.sample.first" = "First post";
@@ -203,24 +191,6 @@
 "notifications.latest_updates.open_action" = "Open updates";
 "notifications.latest_updates.action_triggered_log" = "Open updates action triggered";
 
-"menu.nutrition" = "Nutrition";
-"food.title" = "Food Scanner";
-"food.camera.hint" = "Point the camera at a barcode";
-"food.camera.denied" = "Camera access is disabled. Enter barcode manually.";
-"food.camera.unavailable" = "Camera is not available on this device";
-"food.barcode.placeholder" = "Enter barcode";
-"food.barcode.search" = "Find product";
-"food.state.loading" = "Searching product...";
-"food.diary.add" = "Add to diary";
-"food.diary.summary" = "Today: %.0f kcal • P %.1f • F %.1f • C %.1f";
-"food.diary.entry" = "%.0f kcal • P %.1f • F %.1f • C %.1f";
-"food.unknown_product" = "Unknown product";
-"food.ingredients.title" = "Ingredients";
-"food.ingredients.empty" = "Ingredients are not available";
-"food.allergens.title" = "Allergens";
-"food.allergens.none" = "Not specified";
-"food.error.diary_load" = "Failed to load nutrition diary";
-"food.error.diary_save" = "Failed to save diary entry";
 "api.error.bad_url" = "Request error";
 "api.error.network" = "Network is unavailable";
 "api.error.invalid_response" = "Service is temporarily unavailable";

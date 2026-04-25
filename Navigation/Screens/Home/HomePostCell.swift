@@ -246,10 +246,12 @@ final class HomePostCell: UITableViewCell {
             let nsURL = remoteURL as NSURL
             if let cached = Self.imageCache.object(forKey: nsURL) {
                 postImageView.image = cached
+                postImageView.backgroundColor = .clear
                 return
             }
 
-            postImageView.image = fallbackImage(for: model)
+            postImageView.image = nil
+            postImageView.backgroundColor = StyleGuide.Colors.backgroundSecondary
             imageTask = URLSession.shared.dataTask(with: remoteURL) { [weak self] data, _, _ in
                 guard let self,
                       let data,
@@ -257,6 +259,7 @@ final class HomePostCell: UITableViewCell {
                 Self.imageCache.setObject(image, forKey: nsURL)
                 DispatchQueue.main.async {
                     self.postImageView.image = image
+                    self.postImageView.backgroundColor = .clear
                 }
             }
             imageTask?.resume()
@@ -264,6 +267,7 @@ final class HomePostCell: UITableViewCell {
         }
 
         postImageView.image = fallbackImage(for: model)
+        postImageView.backgroundColor = .clear
     }
 
     private func applyAvatar(model: HomeFeedPost) {

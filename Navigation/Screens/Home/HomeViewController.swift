@@ -27,6 +27,7 @@ final class HomeViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
     private let favoritesRepository = FavoritesRepository.shared
+    private let interactionsStore: FeedInteractionsStoreProtocol
     private let remoteFeedViewModel: SocialFeedViewModel
     private let cloudPostsService: CloudPostsService? = {
         guard FeatureFlags.cloudSyncEnabled else { return nil }
@@ -38,6 +39,10 @@ final class HomeViewController: UIViewController {
     private var isSkeletonLoading = true
     private var remoteFeed: [HomeFeedPost] = []
     private var customFeed: [HomeFeedPost] = []
+    private var autoRefreshTimer: Timer?
+    private var noInternetWorkItem: DispatchWorkItem?
+    private var lastNoInternetAlertDate: Date?
+    private var selectedGenre: FeedGenre = .humor
     var onOpenProfile: (() -> Void)?
 
     private var stories: [StoryItem] = [
@@ -53,11 +58,13 @@ final class HomeViewController: UIViewController {
 
     init(
         remoteFeedViewModel: SocialFeedViewModel = SocialFeedViewModel(
-            service: FeedService(),
+            service: CatFeedService(),
             cacheRepository: CoreDataFeedCacheRepository()
-        )
+        ),
+        interactionsStore: FeedInteractionsStoreProtocol = FeedInteractionsStore()
     ) {
         self.remoteFeedViewModel = remoteFeedViewModel
+        self.interactionsStore = interactionsStore
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -76,6 +83,7 @@ final class HomeViewController: UIViewController {
         stateView.onRetry = { [weak self] in
             self?.requestRemoteFeed(isRefresh: false)
         }
+        remoteFeedViewModel.setGenre(selectedGenre)
         bindRemoteFeedViewModel()
         loadCustomPublications()
 
@@ -86,6 +94,12 @@ final class HomeViewController: UIViewController {
         super.viewWillAppear(animated)
         let user = currentUser()
         configureAvatar(user?.avatar)
+        startAutoFeedRefresh()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopAutoFeedRefresh()
     }
 
     private func setupTableView() {
@@ -150,7 +164,7 @@ final class HomeViewController: UIViewController {
             target: self,
             action: #selector(addPostTapped)
         )
-        navigationItem.rightBarButtonItems = [addButton]
+        navigationItem.rightBarButtonItem = addButton
     }
 
     func configureAvatar(_ image: UIImage?) {
@@ -212,14 +226,17 @@ final class HomeViewController: UIViewController {
             break
         case .loading:
             isSkeletonLoading = true
+            scheduleNoInternetWarningIfNeeded()
             stateView.apply(.loading(L10n.tr("home.state.loading")))
             tableView.reloadData()
         case .content(let posts):
+            noInternetWorkItem?.cancel()
             isSkeletonLoading = false
             remoteFeed = posts.map(mapRemotePost)
             rebuildFeed()
             refreshControl.endRefreshing()
         case .error(let message):
+            noInternetWorkItem?.cancel()
             isSkeletonLoading = false
             refreshControl.endRefreshing()
 
@@ -233,12 +250,13 @@ final class HomeViewController: UIViewController {
     }
 
     private func mapRemotePost(_ post: SocialFeedPost) -> HomeFeedPost {
+        let interaction = interactionsStore.snapshot(for: post.id, userID: currentUserID())
         let generated = Post(
-            id: "remote_\(post.id)",
+            id: post.id,
             author: post.username,
             description: post.caption,
             image: "my_photo",
-            likes: Int.random(in: 25...600),
+            likes: interaction.likesCount,
             views: Int.random(in: 300...7000)
         )
 
@@ -249,10 +267,10 @@ final class HomeViewController: UIViewController {
             localImage: nil,
             localImageFileName: nil,
             remoteImageURL: post.photoURL,
-            likeCount: generated.likes,
-            commentCount: Int.random(in: 0...70),
-            shareCount: Int.random(in: 0...30),
-            isLiked: false,
+            likeCount: interaction.likesCount,
+            commentCount: interaction.commentsCount,
+            shareCount: interaction.sharesCount,
+            isLiked: interaction.isLiked,
             isCustomPublication: false
         )
     }
@@ -277,18 +295,33 @@ final class HomeViewController: UIViewController {
         }
     }
 
+    private func startAutoFeedRefresh() {
+        stopAutoFeedRefresh()
+        autoRefreshTimer = Timer.scheduledTimer(withTimeInterval: 45, repeats: true) { [weak self] _ in
+            self?.requestRemoteFeed(isRefresh: true)
+        }
+    }
+
+    private func stopAutoFeedRefresh() {
+        autoRefreshTimer?.invalidate()
+        autoRefreshTimer = nil
+    }
+
     private func toggleLike(at index: Int) {
         guard feed.indices.contains(index) else { return }
 
-        feed[index].isLiked.toggle()
-        feed[index].likeCount += feed[index].isLiked ? 1 : -1
-
         if feed[index].isCustomPublication {
+            feed[index].isLiked.toggle()
+            feed[index].likeCount += feed[index].isLiked ? 1 : -1
             syncCustomFeedItem(feed[index])
             persistCustomPublications()
             syncCustomPostToCloud(feed[index])
         } else {
-            if feed[index].isLiked {
+            let snapshot = interactionsStore.toggleLike(for: feed[index].post.id, userID: currentUserID())
+            feed[index].isLiked = snapshot.isLiked
+            feed[index].likeCount = snapshot.likesCount
+
+            if snapshot.isLiked {
                 favoritesRepository.save(post: feed[index].post)
             } else {
                 favoritesRepository.remove(id: feed[index].post.id)
@@ -300,18 +333,18 @@ final class HomeViewController: UIViewController {
 
     private func addComment(at index: Int) {
         guard feed.indices.contains(index) else { return }
-        feed[index].commentCount += 1
-        if feed[index].isCustomPublication {
-            syncCustomFeedItem(feed[index])
-            persistCustomPublications()
-            syncCustomPostToCloud(feed[index])
-        }
-        tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+        presentCommentDialog(at: index)
     }
 
     private func sharePost(at index: Int) {
         guard feed.indices.contains(index) else { return }
-        feed[index].shareCount += 1
+
+        if feed[index].isCustomPublication {
+            feed[index].shareCount += 1
+        } else {
+            let snapshot = interactionsStore.incrementShare(for: feed[index].post.id, userID: currentUserID())
+            feed[index].shareCount = snapshot.sharesCount
+        }
 
         let activity = UIActivityViewController(
             activityItems: [feed[index].post.description],
@@ -325,6 +358,72 @@ final class HomeViewController: UIViewController {
             syncCustomPostToCloud(feed[index])
         }
         tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+    }
+
+    private func presentCommentDialog(at index: Int) {
+        let alert = UIAlertController(
+            title: L10n.tr("home.post.comment_title"),
+            message: nil,
+            preferredStyle: .alert
+        )
+        alert.addTextField { textField in
+            textField.placeholder = L10n.tr("home.post.comment_placeholder")
+        }
+        alert.addAction(UIAlertAction(title: L10n.tr("common.cancel"), style: .cancel))
+        alert.addAction(UIAlertAction(title: L10n.tr("home.post.publish"), style: .default) { [weak self] _ in
+            guard let self else { return }
+            guard self.feed.indices.contains(index) else { return }
+            let text = alert.textFields?.first?.text ?? ""
+
+            if self.feed[index].isCustomPublication {
+                self.feed[index].commentCount += 1
+                self.syncCustomFeedItem(self.feed[index])
+                self.persistCustomPublications()
+                self.syncCustomPostToCloud(self.feed[index])
+            } else {
+                let snapshot = self.interactionsStore.addComment(
+                    for: self.feed[index].post.id,
+                    userID: self.currentUserID(),
+                    text: text
+                )
+                self.feed[index].commentCount = snapshot.commentsCount
+            }
+            self.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+        })
+        present(alert, animated: true)
+    }
+
+    private func currentUserID() -> String {
+        FirebaseSessionStorage.shared.user?.email.lowercased() ?? "guest"
+    }
+
+    private func scheduleNoInternetWarningIfNeeded() {
+        noInternetWorkItem?.cancel()
+        guard feed.isEmpty else { return }
+
+        let work = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            guard self.feed.isEmpty else { return }
+            let now = Date()
+            if let last = self.lastNoInternetAlertDate,
+               now.timeIntervalSince(last) < 60 {
+                return
+            }
+
+            self.lastNoInternetAlertDate = now
+            let alert = UIAlertController(
+                title: L10n.tr("common.error"),
+                message: L10n.tr("home.error.long_no_internet"),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: L10n.tr("common.ok"), style: .default))
+            if self.presentedViewController == nil {
+                self.present(alert, animated: true)
+            }
+        }
+
+        noInternetWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8, execute: work)
     }
 
     private func openStory(at index: Int) {
@@ -346,7 +445,7 @@ final class HomeViewController: UIViewController {
         })
         sheet.addAction(UIAlertAction(title: L10n.tr("common.cancel"), style: .cancel))
         if let popover = sheet.popoverPresentationController {
-            popover.barButtonItem = navigationItem.rightBarButtonItems?.first
+            popover.barButtonItem = navigationItem.rightBarButtonItem
         }
         present(sheet, animated: true)
     }

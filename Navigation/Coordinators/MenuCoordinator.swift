@@ -30,18 +30,6 @@ final class MenuCoordinator: Coordinator {
             let vc = ProfileViewController(viewModel: vm)
             navigationController.pushViewController(vc, animated: true)
 
-        case .sports:
-            let vc = SportsHubViewController()
-            navigationController.pushViewController(vc, animated: true)
-
-        case .nutrition:
-            let vm = FoodScannerViewModel(
-                foodService: FoodService(),
-                diaryRepository: CoreDataNutritionDiaryRepository()
-            )
-            let vc = FoodScannerViewController(viewModel: vm)
-            navigationController.pushViewController(vc, animated: true)
-
         case .favorites:
             let vc = FavoritesViewController()
             vc.onOpenFiles = { [weak self] in self?.showFiles() }

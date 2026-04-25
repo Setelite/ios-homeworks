@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSCameraUsageDescription</key>
-	<string>Приложению нужен доступ к камере для сканирования штрих-кодов продуктов</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Приложению нужен доступ к геолокации для поиска спортсменов рядом и карты тренировок</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -23,5 +19,7 @@
 			</array>
 		</dict>
 	</dict>
+	<key>CAT_API_KEY</key>
+	<string>live_SBZByRa3TbUK9J9kgogrZYveyY8XlO6GInIQbMRY5XWdew4jWmc8Rws1gaqth8i3</string>
 </dict>
 </plist>

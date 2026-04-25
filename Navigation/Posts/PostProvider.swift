@@ -12,7 +12,7 @@ enum PostProvider {
     static func makePosts() -> [Post] {
         [
             Post(
-                author: L10n.tr("post.author.vk_media"),
+                author: L10n.tr("post.author.media"),
                 description: L10n.tr("post.sample.first"),
                 image: "my_photo",
                 likes: 10,

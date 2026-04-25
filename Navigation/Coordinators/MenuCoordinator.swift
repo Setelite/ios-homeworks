@@ -63,8 +63,8 @@ final class MenuCoordinator: Coordinator {
             self?.showPasswordFlow()
         }
         vc.onLogout = { [weak self] in
-            FirebaseSessionStorage.shared.clear()
-            self?.navigationController.popToRootViewController(animated: true)
+            self?.navigationController.popToRootViewController(animated: false)
+            NotificationCenter.default.post(name: .appDidRequestLogout, object: nil)
         }
         navigationController.pushViewController(vc, animated: true)
     }

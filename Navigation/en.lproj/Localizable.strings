@@ -99,6 +99,7 @@
 "settings.sort" = "Sort A–Z";
 "settings.change_password" = "Change password";
 "settings.logout" = "Log out";
+"settings.logout.confirm_message" = "Are you sure you want to log out?";
 "theme.system" = "System";
 "theme.light" = "Light";
 "theme.dark" = "Dark";

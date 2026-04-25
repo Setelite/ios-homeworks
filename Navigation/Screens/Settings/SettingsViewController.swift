@@ -7,6 +7,10 @@
 
 import UIKit
 
+extension Notification.Name {
+    static let appDidRequestLogout = Notification.Name("appDidRequestLogout")
+}
+
 final class SettingsViewController: UITableViewController {
 
     // MARK: - Callbacks (для Coordinator)
@@ -110,7 +114,7 @@ final class SettingsViewController: UITableViewController {
             onChangePassword?()
 
         case .account:
-            onLogout?()
+            presentLogoutConfirmation()
         }
     }
 
@@ -122,5 +126,27 @@ final class SettingsViewController: UITableViewController {
     @objc private func themeChanged(_ sender: UISegmentedControl) {
         guard let mode = AppThemeMode(rawValue: sender.selectedSegmentIndex) else { return }
         SettingsStorage.shared.themeMode = mode
+    }
+
+    private func presentLogoutConfirmation() {
+        let alert = UIAlertController(
+            title: L10n.tr("settings.logout"),
+            message: L10n.tr("settings.logout.confirm_message"),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: L10n.tr("common.cancel"), style: .cancel))
+        alert.addAction(UIAlertAction(title: L10n.tr("settings.logout"), style: .destructive) { [weak self] _ in
+            self?.performLogout()
+        })
+        present(alert, animated: true)
+    }
+
+    private func performLogout() {
+        FirebaseSessionStorage.shared.clear()
+        if let onLogout {
+            onLogout()
+        } else {
+            NotificationCenter.default.post(name: .appDidRequestLogout, object: nil)
+        }
     }
 }

@@ -15,6 +15,16 @@ final class AppCoordinator: Coordinator {
 
     init(window: UIWindow) {
         self.window = window
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleLogoutRequested),
+            name: .appDidRequestLogout,
+            object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     func start() {
@@ -46,5 +56,11 @@ final class AppCoordinator: Coordinator {
 
         window.rootViewController = tabBarCoordinator.tabBarController
         window.makeKeyAndVisible()
+    }
+
+    @objc private func handleLogoutRequested() {
+        FirebaseSessionStorage.shared.clear()
+        tabBarCoordinator = nil
+        showLogin()
     }
 }

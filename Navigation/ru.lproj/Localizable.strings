@@ -99,6 +99,7 @@
 "settings.sort" = "Сортировка A–Z";
 "settings.change_password" = "Поменять пароль";
 "settings.logout" = "Выйти из аккаунта";
+"settings.logout.confirm_message" = "Вы уверены, что хотите выйти из аккаунта?";
 "theme.system" = "Система";
 "theme.light" = "Светлая";
 "theme.dark" = "Тёмная";

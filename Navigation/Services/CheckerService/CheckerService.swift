@@ -70,8 +70,10 @@ final class CheckerService: CheckerServiceProtocol {
         Task {
             do {
                 let session = try await authService.signUp(email: email, password: password)
-                try await userProfileService.upsertUserProfile(user: session.user, idToken: session.idToken)
                 sessionStorage.store(session: session)
+                // Профиль в Firestore пишем best-effort:
+                // если запись не удалась, регистрацию не считаем проваленной.
+                try? await userProfileService.upsertUserProfile(user: session.user, idToken: session.idToken)
                 await MainActor.run {
                     completion(.success(()))
                 }

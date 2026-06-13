@@ -1,0 +1,16 @@
+# Xcode
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+*.moved-aside
+*.xcuserstate
+*.xcworkspace
+
+BuildData/
+BuildData/

@@ -1,38 +1,74 @@
-//
-//  SceneDelegate.swift
-//  Navigation
-//
-//  Created by MAXIM GORNOSTAEV on 16.07.2025.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    var appCoordinator: AppCoordinator?
+    var appConfiguration: AppConfiguration?
 
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    func scene(_ scene: UIScene,
+               willConnectTo session: UISceneSession,
+               options connectionOptions: UIScene.ConnectionOptions) {
 
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let windowScene = scene as? UIWindowScene else { return }
 
         let window = UIWindow(windowScene: windowScene)
-
-        let feedVC = FeedViewController()
-        feedVC.title = "Feed"
-        let feedNav = UINavigationController(rootViewController: feedVC)
-        feedNav.tabBarItem = UITabBarItem(title: "Feed", image: UIImage(systemName: "list.bullet"), tag: 0)
-
-        let profileVC = ProfileViewController()
-        profileVC.title = "Profile"
-        let profileNav = UINavigationController(rootViewController: profileVC)
-        profileNav.tabBarItem = UITabBarItem(title: "Profile", image: UIImage(systemName: "person"), tag: 1)
-
-        let tabBarController = UITabBarController()
-        tabBarController.viewControllers = [feedNav, profileNav]
-
-        
         self.window = window
-        window.rootViewController = tabBarController
-        window.makeKeyAndVisible()
+
+        appConfiguration = makeRandomConfiguration()
+
+        if let configuration = appConfiguration {
+            NetworkService.request(for: configuration)
+        }
+
+        let appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator = appCoordinator
+        appCoordinator.start()
+        applyTheme()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeDidChange),
+            name: .appThemeDidChange,
+            object: nil
+        )
+    }
+
+    /* 🔥 ВАЖНО ДЛЯ ЗАЧЁТА
+    func sceneDidDisconnect(_ scene: UIScene) {
+        do {
+            try Auth.auth().signOut()
+            print("✅ User signed out")
+        } catch {
+            print("❌ Sign out error:", error.localizedDescription)
+        }
+    }
+    */
+
+    private func makeRandomConfiguration() -> AppConfiguration {
+        let configurations: [AppConfiguration] = [
+            .people("https://swapi.dev/api/people/8"),
+            .starship("https://swapi.dev/api/starships/3"),
+            .planet("https://swapi.dev/api/planets/5")
+        ]
+
+        return configurations.randomElement()!
+    }
+
+    @objc private func handleThemeDidChange() {
+        applyTheme()
+    }
+
+    private func applyTheme() {
+        let style: UIUserInterfaceStyle
+        switch SettingsStorage.shared.themeMode {
+        case .system:
+            style = .unspecified
+        case .light:
+            style = .light
+        case .dark:
+            style = .dark
+        }
+        window?.overrideUserInterfaceStyle = style
     }
 }

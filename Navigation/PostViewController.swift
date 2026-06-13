@@ -7,20 +7,83 @@
 
 import UIKit
 
-class PostViewController: UIViewController {
-    var post: Post?
+final class PostViewController: UIViewController {
+
+    
+    let post: Post
+    private let favorites = FavoritesRepository.shared
+    private let contentStack = UIStackView()
+    private let descriptionLabel = UILabel()
+    private let likesLabel = UILabel()
+    private let viewsLabel = UILabel()
+
+    //Инициализатор
+    init(post: Post) {
+        self.post = post
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemOrange
-        title = post?.title
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Info", style: .plain, target: self, action: #selector(showInfo))
+        view.backgroundColor = StyleGuide.Colors.backgroundPrimary
+        title = post.author
+        setupUI()
+        fillContent()
+        updateFavoriteState()
     }
 
-    @objc func showInfo() {
-        let infoVC = InfoViewController()
-        infoVC.modalPresentationStyle = .formSheet
-        present(infoVC, animated: true)
+    private func setupUI() {
+        contentStack.axis = .vertical
+        contentStack.spacing = 12
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.font = StyleGuide.Fonts.body(18)
+        descriptionLabel.textColor = StyleGuide.Colors.textPrimary
+
+        likesLabel.font = StyleGuide.Fonts.body(16, weight: .semibold)
+        likesLabel.textColor = StyleGuide.Colors.danger
+
+        viewsLabel.font = StyleGuide.Fonts.body()
+        viewsLabel.textColor = StyleGuide.Colors.textSecondary
+
+        contentStack.addArrangedSubview(descriptionLabel)
+        contentStack.addArrangedSubview(likesLabel)
+        contentStack.addArrangedSubview(viewsLabel)
+        view.addSubview(contentStack)
+
+        NSLayoutConstraint.activate([
+            contentStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            contentStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            contentStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+        ])
+    }
+
+    private func fillContent() {
+        descriptionLabel.text = post.description
+        likesLabel.text = L10n.format("post.likes", post.likes)
+        viewsLabel.text = L10n.format("post.views", post.views)
+    }
+
+    private func updateFavoriteState() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(
+                systemName: favorites.isFavorite(id: post.id)
+                    ? "heart.fill"
+                    : "heart"
+            ),
+            style: .plain,
+            target: self,
+            action: #selector(toggleFavorite)
+        )
+    }
+
+    @objc private func toggleFavorite() {
+        _ = favorites.toggle(post: post)
+        updateFavoriteState()
     }
 }
